@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 func NewQuestionable() Source {
@@ -15,7 +16,15 @@ type questionable struct {
 	url string
 }
 
-func (q questionable) Items() ([]string, error) {
+func (q *questionable) Title() string {
+	return "Questionable Content"
+}
+
+func (q *questionable) Url() string {
+	return q.url
+}
+
+func (q questionable) Items() ([]Item, error) {
 	resp, err := http.Get(q.url)
 	if err != nil {
 		msg := fmt.Sprintf("Could not fetch %s due to %s", q.url, err.Error())
@@ -25,7 +34,7 @@ func (q questionable) Items() ([]string, error) {
 	return parseQuestionable(resp.Body)
 }
 
-func parseQuestionable(source io.Reader) ([]string, error) {
+func parseQuestionable(source io.Reader) ([]Item, error) {
 	patterns := map[string]string{
 		"prev": "<li><a href=\"view.php\\?comic=(\\d+)\">Previous</a></li>",
 		"curr": "<img id=\"strip\" src=\"http://www.questionablecontent.net/comics/(\\d+).png\">",
@@ -37,10 +46,16 @@ func parseQuestionable(source io.Reader) ([]string, error) {
 	if len(res["curr"]) != 1 {
 		return nil, errors.New(fmt.Sprintf("invalid questionable page, got no current link (len == %d)", len(res["cur"])))
 	}
-	r := []string{}
-	if len(res["prev"]) > 0 {
-		r = append(r, fmt.Sprintf("http://www.questionablecontent.net/comics/%s.png", res["prev"][0]))
+	item := func(id string, day int) Item {
+		d := time.Now().AddDate(0, 0, -1)
+		date := d.Format("2006-01-02") + " 00:00"
+		url := fmt.Sprintf("http://www.questionablecontent.net/comics/%s.png", id)
+		return Item{id, url, url, date, fmt.Sprintf("<img src=\"%s\">", url)}
 	}
-	r = append(r, fmt.Sprintf("http://www.questionablecontent.net/comics/%s.png", res["curr"][0]))
+	r := []Item{}
+	if len(res["prev"]) > 0 {
+		r = append(r, item(res["prev"][0], -1))
+	}
+	r = append(r, item(res["curr"][0], 0))
 	return r, nil
 }
