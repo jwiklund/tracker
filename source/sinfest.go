@@ -12,5 +12,5 @@ func sinfestUrl() string {
 }
 
 func NewSinfest() Source {
-	return NewSimple("XKCD", "http://www.sinfest.net/", sinfestUrl(), sinfestPatterns())
+	return NewSimple("Sinfest", "http://www.sinfest.net/", sinfestUrl(), sinfestPatterns())
 }
