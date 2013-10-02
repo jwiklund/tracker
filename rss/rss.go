@@ -32,12 +32,13 @@ func sourceToChannel(s source.Source) (gorss.Channel, error) {
 		return gorss.Channel{}, err
 	}
 	for _, item := range sourceItems {
-		i := gorss.Item{}
-		i.Link = item.Link
-		i.GUID = item.GUID
-		i.Description = item.Title
-		i.Content = item.Content
-		i.PubDate = gorss.Date(item.Date)
+		i := gorss.Item{
+			Title:       item.Title,
+			Link:        item.Link,
+			GUID:        item.GUID,
+			Description: item.Content,
+			PubDate:     gorss.Date(item.Date),
+		}
 		items = append(items, i)
 	}
 	c.Item = items
