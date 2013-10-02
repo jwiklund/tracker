@@ -47,15 +47,14 @@ func parseQuestionable(source io.Reader) ([]Item, error) {
 		return nil, errors.New(fmt.Sprintf("invalid questionable page, got no current link (len == %d)", len(res["cur"])))
 	}
 	item := func(id string, day int) Item {
-		d := time.Now().AddDate(0, 0, -1)
-		date := d.Format("2006-01-02") + " 00:00"
+		d := time.Now().AddDate(0, 0, day)
+		date := d.Format("2006-01-02") + " 01:01:01"
 		url := fmt.Sprintf("http://www.questionablecontent.net/comics/%s.png", id)
 		return Item{id, url, url, date, fmt.Sprintf("<img src=\"%s\">", url)}
 	}
-	r := []Item{}
+	r := []Item{item(res["curr"][0], 0)}
 	if len(res["prev"]) > 0 {
 		r = append(r, item(res["prev"][0], -1))
 	}
-	r = append(r, item(res["curr"][0], 0))
 	return r, nil
 }
