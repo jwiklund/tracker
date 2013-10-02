@@ -11,17 +11,21 @@ import (
 
 func Tracker() *restful.WebService {
 	ws := new(restful.WebService)
-	ws.Path("/")
-	ws.Route(ws.GET("/questionable").To(questionable)).Produces(restful.MIME_XML)
+	ws.Path("/").Produces(restful.MIME_XML)
+	ws.Route(ws.GET("/questionable").To(handler(source.NewQuestionable())))
+	ws.Route(ws.GET("/sinfest").To(handler(source.NewSinfest())))
+	ws.Route(ws.GET("/xkcd").To(handler(source.NewXKCD())))
 	return ws
 }
 
-func questionable(request *restful.Request, response *restful.Response) {
-	q := source.NewQuestionable()
-	response.Write([]byte("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>"))
-	response.Write([]byte("<rss xmlns:atom=\"http://www.w3.org/2005/Atom\" version=\"2.0\">"))
-	rss.Write(q, response)
-	response.Write([]byte("</rss>"))
+func handler(s source.Source) func(*restful.Request, *restful.Response) {
+	f := func(request *restful.Request, response *restful.Response) {
+		response.Write([]byte("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>"))
+		response.Write([]byte("<rss xmlns:atom=\"http://www.w3.org/2005/Atom\" version=\"2.0\">"))
+		rss.Write(s, response)
+		response.Write([]byte("</rss>"))
+	}
+	return f
 }
 
 func Run(ip, port string) {
