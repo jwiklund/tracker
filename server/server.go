@@ -22,8 +22,11 @@ func handler(s source.Source) func(*restful.Request, *restful.Response) {
 	f := func(request *restful.Request, response *restful.Response) {
 		response.Write([]byte("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>"))
 		response.Write([]byte("<rss xmlns:atom=\"http://www.w3.org/2005/Atom\" version=\"2.0\">"))
-		rss.Write(s, response)
+		err := rss.Write(s, response)
 		response.Write([]byte("</rss>"))
+		if err != nil {
+			log.Printf("Error while handling %s: %s", s.Title(), err.Error())
+		}
 	}
 	return f
 }
