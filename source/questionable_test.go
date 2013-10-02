@@ -11,7 +11,7 @@ func TestParseQuestionable(t *testing.T) {
 		t.Fatal("Could not open example file", err)
 	}
 	defer file.Close()
-	items, err := parseQuestionable(file)
+	items, err := parseSimpleItems(file, questionableUrl(), questionablePatterns())
 	if err != nil {
 		t.Fatal("Could not parse example file", err)
 	}
@@ -30,7 +30,7 @@ func TestQuestionableDates(t *testing.T) {
 		t.Fatal("Could not open example file", err)
 	}
 	defer file.Close()
-	items, err := parseQuestionable(file)
+	items, err := parseSimpleItems(file, questionableUrl(), questionablePatterns())
 	if err != nil {
 		t.Fatal("Could not parse example file", err)
 	}

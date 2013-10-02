@@ -8,7 +8,9 @@ import (
 	"regexp"
 )
 
-func parseSource(patterns map[string]string, source io.Reader) (map[string][]string, error) {
+type StringMap map[string]string
+
+func ParseSimple(source io.Reader, patterns StringMap) (map[string][]string, error) {
 	res := make(map[string][]string)
 	pat := make(map[string]*regexp.Regexp)
 	for name, pattern := range patterns {
