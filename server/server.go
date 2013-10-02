@@ -13,9 +13,7 @@ func Tracker() *restful.WebService {
 	ws := new(restful.WebService)
 	ws.Path("/").Produces(restful.MIME_XML)
 	ws.Route(ws.GET("/questionable").To(handler(source.NewQuestionable())))
-	ws.Route(ws.GET("/quest").To(handler(source.NewQuestionable())))
 	ws.Route(ws.GET("/sinfest").To(handler(source.NewSinfest())))
-	ws.Route(ws.GET("/xkcd").To(handler(source.NewXKCD())))
 	ws.Route(ws.GET("/xkcd").To(handler(source.NewXKCD())))
 	return ws
 }
