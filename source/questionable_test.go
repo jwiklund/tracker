@@ -3,6 +3,7 @@ package source
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestParseQuestionable(t *testing.T) {
@@ -35,10 +36,16 @@ func TestQuestionableDates(t *testing.T) {
 		t.Fatal("Could not parse example file", err)
 	}
 	t.Logf("Result %v", items)
-	if items[0].Date != "2013-10-02 01:01:01" {
-		t.Fatal("Wrong date of first")
+	first, err := time.Parse("2006-1-2 03:04:05", items[0].Date)
+	if err != nil {
+		t.Fatalf("Could not parse first date, %s: %s", items[0].Date, err.Error())
 	}
-	if items[1].Date != "2013-10-01 01:01:01" {
-		t.Fatal("Wrong date of second")
+	second, err := time.Parse("2006-1-2 03:04:05", items[1].Date)
+	if err != nil {
+		t.Fatalf("Could not parse second date, %s: %s", items[1].Date, err.Error())
+	}
+	t.Logf("First %s, Second %s", first.Format(time.ANSIC), second.Format(time.ANSIC))
+	if !second.Before(first) {
+		t.Fatal("Expected first date to be one day after second date")
 	}
 }
