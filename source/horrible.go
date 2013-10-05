@@ -7,9 +7,59 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
+
+func NewHorrible() Source {
+	return &horrible{}
+}
+
+type horrible struct {
+}
+
+func (h *horrible) Title() string {
+	return "Horrible Subs"
+}
+
+func (h *horrible) Url() string {
+	return "http://horriblesubs.info/lib/latest.php"
+}
+
+func (h *horrible) Items() ([]Item, error) {
+	resp, err := http.Get(h.Url())
+	if err != nil {
+		msg := fmt.Sprintf("Could not fetch %s due to %s", h.Url(), err.Error())
+		return nil, errors.New(msg)
+	}
+	defer resp.Body.Close()
+	items, err := parseLatestHorrible(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]Item, len(items))
+	for i, item := range items {
+		var it Item
+		// TODO parse and store
+		it.Date = time.Now().Format("2006-01-02") + " 01:01:01"
+		link := item.Torrents["720p"]
+		if link == "" {
+			for _, k := range item.Torrents {
+				link = item.Torrents[k]
+				break
+			}
+		}
+		it.GUID = link
+		it.Link = link
+		it.Title = item.Name + " - " + item.Episode
+		// TODO anidb link
+		it.Content = fmt.Sprintf("<a href='%s'>%s</a>", link, it.Title)
+		res[i] = it
+	}
+	return res, nil
+}
 
 type HorribleItem struct {
 	Name     string
