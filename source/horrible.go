@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -20,37 +22,43 @@ type Html struct {
 	Node *html.Node
 }
 
-func (h Html) GetChild(childType atom.Atom) Html {
+func (h Html) EachChild(f func(*html.Node) bool) {
 	child := h.Node.FirstChild
 	if child == nil {
-		return Html{}
+		return
 	}
 	for {
-		if child.DataAtom == childType {
-			return Html{child}
+		if !f(child) {
+			return
 		}
 		if child == h.Node.LastChild {
-			return Html{nil}
+			return
 		}
 		child = child.NextSibling
 	}
 }
 
+func (h Html) GetChild(childType atom.Atom) Html {
+	var child Html
+	h.EachChild(func(n *html.Node) bool {
+		if n.DataAtom == childType {
+			child = Html{n}
+			return false
+		}
+		return true
+	})
+	return child
+}
+
 func (h Html) GetChildren(childType atom.Atom) []Html {
 	var res []Html
-	child := h.Node.FirstChild
-	if child == nil {
-		return res
-	}
-	for {
-		if child.DataAtom == childType || int(childType) == 0 {
-			res = append(res, Html{child})
+	h.EachChild(func(n *html.Node) bool {
+		if n.DataAtom == childType || int(childType) == 0 {
+			res = append(res, Html{n})
 		}
-		if child == h.Node.LastChild {
-			return res
-		}
-		child = child.NextSibling
-	}
+		return true
+	})
+	return res
 }
 
 func (h Html) GetChildPath(childTypes ...atom.Atom) (Html, error) {
@@ -60,11 +68,7 @@ func (h Html) GetChildPath(childTypes ...atom.Atom) (Html, error) {
 		next := node.GetChild(childType)
 		path = append(path, childType.String())
 		if next.Node == nil {
-			childs := node.GetChildren(atom.Atom(0))
-			var children []string
-			for _, child := range childs {
-				children = append(children, child.Node.DataAtom.String())
-			}
+			children := HtmlArrayToString(node.GetChildren(atom.Atom(0)), HtmlToNodeType)
 			return Html{}, errors.New(fmt.Sprintf("Path %s, could not find %s in %s",
 				strings.Join(path, "/"), childType.String(), strings.Join(children, ",")))
 		}
@@ -73,8 +77,31 @@ func (h Html) GetChildPath(childTypes ...atom.Atom) (Html, error) {
 	return node, nil
 }
 
+func (h Html) GetText() string {
+	var res string
+	h.EachChild(func(n *html.Node) bool {
+		if n.Type == html.TextNode {
+			res = res + n.Data
+		}
+		return true
+	})
+	return res
+}
+
 func (h Html) String() string {
 	return h5.NewTree(h.Node).String()
+}
+
+func HtmlArrayToString(h []Html, f func(h Html) string) []string {
+	res := make([]string, len(h))
+	for i, item := range h {
+		res[i] = f(item)
+	}
+	return res
+}
+
+func HtmlToNodeType(h Html) string {
+	return h.Node.DataAtom.String()
 }
 
 func parseLatestHorrible(source io.Reader) ([]HorribleItem, error) {
@@ -99,5 +126,12 @@ func parseLatestHorrible(source io.Reader) ([]HorribleItem, error) {
 }
 
 func parseLatestHorribleItem(episode Html) (*HorribleItem, error) {
+	name_pat := regexp.MustCompile("\\([0-9/]+\\) (.*) - \\d+")
+	children := HtmlArrayToString(episode.GetChildren(atom.Atom(0)), func(h Html) string {
+		return h.Node.DataAtom.String() + "==" + strconv.Itoa(int(h.Node.DataAtom)) + ":" + h.String()
+	})
+	fmt.Printf(strings.Join(children, ", ") + "\n")
+	fmt.Println(episode.GetText())
+	name_pat.String()
 	return nil, errors.New("Not implemented")
 }
