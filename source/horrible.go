@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -16,6 +15,10 @@ type HorribleItem struct {
 	Name     string
 	Episode  string
 	Torrents map[string]string
+}
+
+func (ht *HorribleItem) String() string {
+	return fmt.Sprintf("%s - %s at %d locations", ht.Name, ht.Episode, len(ht.Torrents))
 }
 
 type Html struct {
@@ -38,7 +41,46 @@ func (h Html) EachChild(f func(*html.Node) bool) {
 	}
 }
 
-func (h Html) GetChild(childType atom.Atom) Html {
+func (h Html) Attribute(name string) string {
+	for _, a := range h.Node.Attr {
+		if a.Key == name {
+			return a.Val
+		}
+	}
+	return ""
+}
+
+func (h Html) Find(f func(h Html) bool) (Html, error) {
+	if f(h) {
+		return h, nil
+	}
+	children := h.Children(atom.Atom(0))
+	for _, c := range children {
+		if f(c) {
+			return c, nil
+		}
+		r, e := c.Find(f)
+		if e == nil {
+			return r, nil
+		}
+	}
+	return Html{}, errors.New("Not found")
+}
+
+func (h Html) FindAll(f func(h Html) bool) []Html {
+	children := h.Children(atom.Atom(0))
+	var res []Html
+	for _, c := range children {
+		if f(c) {
+			res = append(res, c)
+		} else {
+			res = append(res, c.FindAll(f)...)
+		}
+	}
+	return res
+}
+
+func (h Html) Child(childType atom.Atom) Html {
 	var child Html
 	h.EachChild(func(n *html.Node) bool {
 		if n.DataAtom == childType {
@@ -50,7 +92,7 @@ func (h Html) GetChild(childType atom.Atom) Html {
 	return child
 }
 
-func (h Html) GetChildren(childType atom.Atom) []Html {
+func (h Html) Children(childType atom.Atom) []Html {
 	var res []Html
 	h.EachChild(func(n *html.Node) bool {
 		if n.DataAtom == childType || int(childType) == 0 {
@@ -61,14 +103,14 @@ func (h Html) GetChildren(childType atom.Atom) []Html {
 	return res
 }
 
-func (h Html) GetChildPath(childTypes ...atom.Atom) (Html, error) {
+func (h Html) ChildAtPath(childTypes ...atom.Atom) (Html, error) {
 	path := []string{}
 	node := h
 	for _, childType := range childTypes {
-		next := node.GetChild(childType)
+		next := node.Child(childType)
 		path = append(path, childType.String())
 		if next.Node == nil {
-			children := HtmlArrayToString(node.GetChildren(atom.Atom(0)), HtmlToNodeType)
+			children := HtmlArrayToString(node.Children(atom.Atom(0)), HtmlToNodeType)
 			return Html{}, errors.New(fmt.Sprintf("Path %s, could not find %s in %s",
 				strings.Join(path, "/"), childType.String(), strings.Join(children, ",")))
 		}
@@ -77,7 +119,7 @@ func (h Html) GetChildPath(childTypes ...atom.Atom) (Html, error) {
 	return node, nil
 }
 
-func (h Html) GetText() string {
+func (h Html) Text() string {
 	var res string
 	h.EachChild(func(n *html.Node) bool {
 		if n.Type == html.TextNode {
@@ -110,12 +152,12 @@ func parseLatestHorrible(source io.Reader) ([]HorribleItem, error) {
 		return nil, err
 	}
 	top := Html{tree.Top()}
-	body, err := top.GetChildPath(atom.Html, atom.Body)
+	body, err := top.ChildAtPath(atom.Html, atom.Body)
 	if err != nil {
 		return nil, err
 	}
 	var rs []HorribleItem
-	for _, episode := range body.GetChildren(atom.Div) {
+	for _, episode := range body.Children(atom.Div) {
 		item, err := parseLatestHorribleItem(episode)
 		if err != nil {
 			return nil, errors.New(err.Error() + " parsing " + episode.String())
@@ -126,12 +168,48 @@ func parseLatestHorrible(source io.Reader) ([]HorribleItem, error) {
 }
 
 func parseLatestHorribleItem(episode Html) (*HorribleItem, error) {
-	name_pat := regexp.MustCompile("\\([0-9/]+\\) (.*) - \\d+")
-	children := HtmlArrayToString(episode.GetChildren(atom.Atom(0)), func(h Html) string {
-		return h.Node.DataAtom.String() + "==" + strconv.Itoa(int(h.Node.DataAtom)) + ":" + h.String()
+	episode_pattern := regexp.MustCompile("\\([0-9/]+\\) (.*) - (\\d+)")
+	episode_match := episode_pattern.FindAllStringSubmatch(episode.Text(), -1)
+	if len(episode_match) == 0 {
+		return nil, errors.New("Could not parse title/episode " + episode.Text())
+	}
+	var res HorribleItem
+	res.Name = strings.Trim(episode_match[0][1], " ")
+	res.Episode = strings.Trim(episode_match[0][2], " ")
+	res.Torrents = make(map[string]string)
+	links := episode.FindAll(func(h Html) bool {
+		return h.Node.DataAtom == atom.Span && h.Attribute("class") == "resolution-links"
 	})
-	fmt.Printf(strings.Join(children, ", ") + "\n")
-	fmt.Println(episode.GetText())
-	name_pat.String()
-	return nil, errors.New("Not implemented")
+	for _, link := range links {
+		format, link, linkType, err := parseLatestHorribleLink(link)
+		if err != nil {
+			return nil, err
+		}
+		if linkType == "Torrent" {
+			res.Torrents[format] = link
+		}
+	}
+	if len(res.Torrents) == 0 {
+		return nil, errors.New("No links found in " + episode.String())
+	}
+	return &res, nil
+}
+
+func parseLatestHorribleLink(link Html) (string, string, string, error) {
+	span, err := link.Find(func(h Html) bool {
+		if h.Node.DataAtom == atom.Span && h.Attribute("class") == "resolution-links" {
+			return true
+		}
+		return false
+	})
+	if err != nil {
+		return "", "", "", errors.New("Could not find span[@class='resolution-links'] in " + link.String())
+	}
+	a, err := span.Find(func(h Html) bool {
+		return h.Node.DataAtom == atom.A
+	})
+	if err != nil {
+		return "", "", "", errors.New("Could not find link in " + span.String())
+	}
+	return span.Attribute("id"), a.Attribute("href"), a.Text(), nil
 }
