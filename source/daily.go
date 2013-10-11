@@ -1,9 +1,9 @@
 package source
 
 import (
-	"code.google.com/p/go.net/html/atom"
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"io"
 	"net/http"
 	"time"
@@ -34,73 +34,34 @@ func (ds *dailyShow) Items() ([]Item, error) {
 }
 
 func parseDailyShow(body io.Reader) ([]Item, error) {
-	top, err := NewHtml(body)
+
+	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
 		return nil, err
 	}
-	epDiv, err := top.Find(func(h Html) bool {
-		return "module tds_full_eps_m03" == h.Attribute("class")
-	})
-	if err != nil {
-		return nil, errors.New("Could not find episodes div [@class='module tds_full_eps_m03']")
-	}
-	episodes := epDiv.FindAll(func(h Html) bool {
-		return h.Node.DataAtom == atom.Li
-	})
 	var res []Item
-	for _, episode := range episodes {
-		item, err := parseDailyShowItem(episode)
-		if err != nil && err.Error() != "Not a link" {
-			return nil, err
+	doc.Find("div.tds_full_eps_m03 li a").Each(func(i int, s *goquery.Selection) {
+		href, found := s.Attr("href")
+		if !found {
+			return
 		}
-		res = append(res, item)
+		details := s.Find(".details").Text()
+		air_date := s.Find(".air_date").Text()
+		date, err := time.Parse("Mon Jan  2", air_date)
+		if err == nil {
+			withyear := time.Date(time.Now().Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+			air_date = withyear.Format("2006-01-02") + " 01:01:01"
+		}
+		guest := s.Find(".guest").Text()
+		if guest[len(guest)-1] == '-' {
+			guest = guest[0 : len(guest)-3]
+		}
+		title := air_date + " " + guest
+		content := fmt.Sprintf("<a href='%s'>%s</a>", href, details)
+		res = append(res, Item{title, href, href, air_date, content})
+	})
+	if len(res) == 0 {
+		return nil, errors.New("No episodes div [@class tds_full_eps_m03] found in body")
 	}
 	return res, nil
-}
-
-func parseDailyShowItem(li Html) (Item, error) {
-	a := li.Child(atom.A)
-	if a.Node == nil {
-		return Item{}, errors.New("Not a link")
-	}
-	link := a.Attribute("href")
-	details, err := a.Find(func(h Html) bool {
-		return h.Attribute("class") == "details"
-	})
-	if err != nil {
-		return Item{}, errors.New("No details element in " + a.String())
-	}
-	detailspan := details.Child(atom.Span)
-	if detailspan.Node == nil {
-		return Item{}, errors.New("No inner span in " + details.String())
-	}
-	airdate, err := a.Find(func(h Html) bool {
-		return h.Attribute("class") == "air_date"
-	})
-	var date string
-	if err != nil {
-		date = "unknown"
-	} else {
-		date, err = parseDailyShowDate(airdate)
-		if err != nil {
-			return Item{}, err
-		}
-	}
-	title := detailspan.Text()
-	content := fmt.Sprintf("<a href='%s'>%s</a>", link, title)
-	return Item{title, link, link, date, content}, nil
-}
-
-func parseDailyShowDate(air Html) (string, error) {
-	span := air.Child(atom.Span)
-	if span.Node == nil {
-		return "", errors.New("No date span in " + air.String())
-	}
-	var all = span.Text() + air.Text()
-	airtime, err := time.Parse("Mon Jan 2", all)
-	if err != nil {
-		return "", err
-	}
-	withyear := time.Date(time.Now().Year(), airtime.Month(), airtime.Day(), 0, 0, 0, 0, time.UTC)
-	return withyear.Format("2006-01-02") + " 01:01:01", nil
 }

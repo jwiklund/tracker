@@ -16,8 +16,10 @@ func TestParseDailyShow(t *testing.T) {
 	if err != nil {
 		t.Fatal("Could not parse example file", err)
 	}
-	t.Logf("Result %v", items)
-	if !strings.Contains(items[0].Title, "Moderate Republicans & Government Shutdown") {
+	for _, item := range items {
+		t.Logf("Title %s, Url %s, Date %s, Content %s", item.Title, item.Link, item.Date, item.Content)
+	}
+	if !strings.Contains(items[0].Title, "2013-10-09 01:01:01 Michael Fassbender") {
 		t.Fatal("Wrong example title")
 	}
 	if items[0].Link != "http://www.thedailyshow.com/full-episodes/wed-october-9-2013-michael-fassbender" {
