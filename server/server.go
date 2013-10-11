@@ -9,13 +9,13 @@ import (
 	"net/http"
 )
 
-func Tracker() *restful.WebService {
+func Tracker(hs *source.HorribleSource) *restful.WebService {
 	ws := new(restful.WebService)
 	ws.Path("/").Produces(restful.MIME_XML)
 	ws.Route(ws.GET("/questionable").To(handler(source.NewQuestionable())))
 	ws.Route(ws.GET("/sinfest").To(handler(source.NewSinfest())))
 	ws.Route(ws.GET("/xkcd").To(handler(source.NewXKCD())))
-	ws.Route(ws.GET("/horrible").To(handler(source.NewHorrible())))
+	ws.Route(ws.GET("/horrible").To(handler(source.NewHorrible(hs))))
 	ws.Route(ws.GET("/dailyshow").To(handler(source.NewDailyShow())))
 	return ws
 }
@@ -38,7 +38,10 @@ func Run(ip, port string) {
 		port = "8080"
 	}
 	list := fmt.Sprintf("%s:%s", ip, port)
-	restful.Add(Tracker())
+	hs := source.NewHorribleSource()
+	go hs.Start()
+	defer hs.Stop()
+	restful.Add(Tracker(hs))
 	log.Printf("start listening on " + list)
 	log.Fatal(http.ListenAndServe(list, nil))
 }
