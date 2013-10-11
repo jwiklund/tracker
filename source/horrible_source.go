@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type HorribleItem struct {
@@ -23,29 +24,75 @@ func (ht *HorribleItem) String() string {
 }
 
 func NewHorribleSource() *HorribleSource {
-	return &HorribleSource{}
+	var t time.Time
+	return &HorribleSource{make(chan horribleItemReq, 10), fetchHorrible, t, []HorribleItem{}}
 }
 
-type HorribleSource struct{}
+type horribleItemReq struct {
+	resp chan []HorribleItem
+}
+
+type horribleGetter func(string) ([]HorribleItem, error)
+
+type HorribleSource struct {
+	Req    chan horribleItemReq
+	getter horribleGetter
+	next   time.Time
+	cache  []HorribleItem
+}
 
 func (hs *HorribleSource) Start() {
+	for {
+		req, ok := <-hs.Req
+		if !ok {
+			return
+		}
+		if hs.next.Before(time.Now()) {
+			items, err := hs.getter(hs.Url())
+			if err != nil {
+				log.Fatalf("Horrible: Could not parse %s due to %s", hs.Url(), err.Error())
+				req.resp <- hs.cache
+			}
+			hs.cache = items
+			hs.next = time.Now().Add(time.Hour)
+			req.resp <- hs.cache
+		} else {
+			req.resp <- hs.cache
+		}
+	}
+}
+
+func fetchHorrible(url string) ([]HorribleItem, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return parseLatestHorrible(resp.Body)
 }
 
 func (hs *HorribleSource) Stop() {
+	close(hs.Req)
 }
 
 func (hs *HorribleSource) Url() string {
 	return "http://horriblesubs.info/lib/latest.php"
 }
 
-func (hs *HorribleSource) Items() ([]HorribleItem, error) {
-	resp, err := http.Get(hs.Url())
-	if err != nil {
-		msg := fmt.Sprintf("Could not fetch %s due to %s", hs.Url(), err.Error())
-		return nil, errors.New(msg)
+func (hs *HorribleSource) Items(name string) ([]HorribleItem, error) {
+	req := horribleItemReq{make(chan []HorribleItem)}
+	hs.Req <- req
+	res := <-req.resp
+	if name == "" {
+		return res, nil
 	}
-	defer resp.Body.Close()
-	return parseLatestHorrible(resp.Body)
+	var result []HorribleItem
+	for _, it := range res {
+		if name == it.Name {
+			result = append(result, it)
+		}
+	}
+	return result, nil
 }
 
 func parseLatestHorrible(source io.Reader) ([]HorribleItem, error) {

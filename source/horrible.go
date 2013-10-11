@@ -5,16 +5,17 @@ import (
 	"time"
 )
 
-func NewHorrible(hs *HorribleSource) Source {
-	return &horrible{hs}
+func NewHorrible(hs *HorribleSource, filter string) Source {
+	return &horrible{hs, filter}
 }
 
 type horrible struct {
 	HorribleSource *HorribleSource
+	Filter         string
 }
 
 func (h horrible) Title() string {
-	return "Horrible Subs"
+	return "Horrible Subs " + h.Filter
 }
 
 func (h horrible) Url() string {
@@ -22,7 +23,7 @@ func (h horrible) Url() string {
 }
 
 func (h horrible) Items() ([]Item, error) {
-	items, err := h.HorribleSource.Items()
+	items, err := h.HorribleSource.Items(h.Filter)
 	if err != nil {
 		return nil, err
 	}

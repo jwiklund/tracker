@@ -15,7 +15,7 @@ func Tracker(hs *source.HorribleSource) *restful.WebService {
 	ws.Route(ws.GET("/questionable").To(handler(source.NewQuestionable())))
 	ws.Route(ws.GET("/sinfest").To(handler(source.NewSinfest())))
 	ws.Route(ws.GET("/xkcd").To(handler(source.NewXKCD())))
-	ws.Route(ws.GET("/horrible").To(handler(source.NewHorrible(hs))))
+	ws.Route(ws.GET("/horrible").To(handler(source.NewHorrible(hs, ""))))
 	ws.Route(ws.GET("/dailyshow").To(handler(source.NewDailyShow())))
 	return ws
 }
