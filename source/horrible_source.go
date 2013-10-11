@@ -51,6 +51,7 @@ func (hs *HorribleSource) Start() {
 			items, err := hs.getter(hs.Url())
 			if err != nil {
 				log.Fatalf("Horrible: Could not parse %s due to %s", hs.Url(), err.Error())
+				hs.next = time.Now().Add(time.Minute)
 				req.resp <- hs.cache
 			}
 			hs.cache = items
