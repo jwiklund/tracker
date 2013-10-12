@@ -42,16 +42,16 @@ func TestHorribleCacheFunc(t *testing.T) {
 	go hs.Start()
 	s := NewHorrible(hs, "")
 	s.Items()
-	if getts != 1 {
+	if getts != 2 {
 		t.Fatalf("Wrong number of getss, no get recorded %d", getts)
 	}
 	s.Items()
-	if getts != 1 {
+	if getts != 2 {
 		t.Fatalf("Wrong number of getts, double gett recorded %d", getts)
 	}
 	hs.next = time.Now().Add(-time.Second)
 	s.Items()
-	if getts != 2 {
+	if getts != 4 {
 		t.Fatalf("Wrong number of getss, no get recorded %d", getts)
 	}
 	hs.Stop()

@@ -47,12 +47,18 @@ func (hs *HorribleSource) Start() {
 		if !ok {
 			return
 		}
-		if hs.next.Before(time.Now()) {
+		if time.Now().After(hs.next) {
 			items, err := hs.getter(hs.Url())
 			if err != nil {
 				log.Fatalf("Horrible: Could not parse %s due to %s", hs.Url(), err.Error())
 				hs.next = time.Now().Add(time.Minute)
 				req.resp <- hs.cache
+			}
+			later_items, err := hs.getter(hs.Url() + "?nextid=1")
+			if err != nil {
+				log.Printf("Horrible: Could not parse %s due to %s", hs.Url()+"?nextid=1", err.Error())
+			} else {
+				items = append(items, later_items...)
 			}
 			hs.cache = items
 			hs.next = time.Now().Add(time.Hour)
