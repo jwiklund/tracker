@@ -2,6 +2,7 @@ package source
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -35,17 +36,26 @@ func (h horrible) Items() ([]Item, error) {
 		quality := "720p"
 		link := item.Torrents[quality]
 		if link == "" {
-			for _, k := range item.Torrents {
-				link = item.Torrents[k]
+			for k, v := range item.Torrents {
+				link = v
 				quality = k
 				break
 			}
 		}
 		it.GUID = link
 		it.Link = link
-		it.Title = fmt.Sprintf("%s - %s (%s)", item.Name, item.Episode, quality)
+		it.Title = fmt.Sprintf("%s - %s", item.Name, item.Episode)
 		// TODO anidb link
-		it.Content = fmt.Sprintf("<a href='%s'>%s</a>", link, it.Title)
+		it.Content = fmt.Sprintf("<a href='%s'>%s (%s)</a>", link, it.Title, quality)
+		var other []string
+		for k, v := range item.Torrents {
+			if k != quality {
+				other = append(other, fmt.Sprintf("<a href='%s'>%s</a>", v, k))
+			}
+		}
+		if len(other) > 0 {
+			it.Content = it.Content + " (" + strings.Join(other, " | ") + ")"
+		}
 		res[i] = it
 	}
 	return res, nil
