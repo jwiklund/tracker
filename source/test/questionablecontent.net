@@ -9,7 +9,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta http-equiv="imagetoolbar" content="no" />
  
-<link rel="stylesheet" type="text/css" href="./newerstyles.css">
+<link rel="stylesheet" type="text/css" href="../widestyles.css">
 <link rel="shortcut icon" href="http://www.questionablecontent.net/images/browsericon.ico" />
 
 <link rel="alternate" type="application/rss+xml" title="The Official QC RSS Feed" href="feed://www.questionablecontent.net/QCRSS.xml">
@@ -65,15 +65,12 @@ document.write('<img src="'+theImages[whichImage]+'">');
     })();
 /* ]]> */</script>
 
-
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="http://malsup.github.com/jquery.cycle2.js"></script>
 
 
 </head>
-<body TOPMARGIN="0" RIGHTMARGIN="0" LEFTMARGIN="0" MARGINHEIGHT="0" MARGINWIDTH="0"><script type="text/javascript">
-//<![CDATA[
-try{(function(a){var b="http://",c="questionablecontent.net",d="/cdn-cgi/cl/",e="img.gif",f=new a;f.src=[b,c,d,e].join("")})(Image)}catch(e){}
-//]]>
-</script>
+<body TOPMARGIN="0" RIGHTMARGIN="0" LEFTMARGIN="0" MARGINHEIGHT="0" MARGINWIDTH="0"><script type="text/javascript">//<![CDATA[try{(function(a){var b="http://",c="questionablecontent.net",d="/cdn-cgi/cl/",e="img.gif",f=new a;f.src=[b,c,d,e].join("")})(Image)}catch(e){}//]]></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-17679175-1']);
@@ -121,7 +118,7 @@ pw_d.projectwonderful_background_color = "";
 	<div id="header">
 
 
-<a id="logo" href="./index.php"><img src="../images/newlogo.png"></A>
+<a id="logo" href="./index.php"><img src="../images/logo14.png"></A>
 
 	
 	
@@ -138,11 +135,14 @@ pw_d.projectwonderful_background_color = "";
 	</div>
 
 <!-- COMIC -->
+
+<div id="column-container">
+
 <div id="comic">
 <script type="text/javascript" src='shortcuts.js'></script>
 <script type="text/javascript">
     shortcut.add("Left",function() {
-                    window.location.href = 'view.php?comic=2545';
+                    window.location.href = 'view.php?comic=2606';
             });
     shortcut.add("Right",function() {
                     alert("You're at the last comic.")
@@ -153,55 +153,60 @@ pw_d.projectwonderful_background_color = "";
 <ul class="inline-list" id="comicnav">
 <li><a href="view.php?comic=1">First</a></li>
 
-<li><a href="view.php?comic=2545">Previous</a></li>
+<li><a href="view.php?comic=2606">Previous</a></li>
 
 <li><a href="#">Next</a></li>
 
 <li><a href="#">Last</a></li>
 
-<li><a href="http://www.questionablecontent.net/view.php?comic=659">Random</a></li>
+<li><a href="http://www.questionablecontent.net/view.php?comic=1107">Random</a></li>
 </ul>
+	
+<img src="http://www.questionablecontent.net/comics/2607.png">
 
-<img id="strip" src="http://www.questionablecontent.net/comics/2546.png">
 
 	
 
 <ul class="inline-list" id="comicnav">
 <li><a href="view.php?comic=1">First</a></li>
 
-<li><a href="view.php?comic=2545">Previous</a></li>
+<li><a href="view.php?comic=2606">Previous</a></li>
 
 <li><a href="#">Next</a></li>
 
 <li><a href="#">Last</a></li>
 
-<li><a href="http://www.questionablecontent.net/view.php?comic=1786">Random</a></li>
+<li><a href="http://www.questionablecontent.net/view.php?comic=792">Random</a></li>
 </ul>
+
+</div>
+
+<br>
 
 <div id="news">
 
-	<b>October 1, 2013 11:47pm</b>
+	<b>December 26, 2013 10:30pm</b>
 	<br />
-	
-There are always a lot of customers just off-panel, I swear.<br>
-<center>
+	<br>
+Regular comics should resume next week.<br>
 
-<br>
-<a href="http://www.topatoco.com/qc"><img src="./images/newitems.jpg"></a>
-<br>
+
+<p align="center">
 <a class="twitter-timeline" href="https://twitter.com/jephjacques" data-widget-id="324443520981155842">Tweets by @jephjacques</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
+</p>
+
+
 </div>
-</center>
-</P>
-</div>
+
 
 <!-- NEWSPOST -->
 
 <div id="side">
 <center>
-<a href="http://www.topatoco.com/merchant.mvc?Screen=PROD&Store_Code=TO&Product_Code=QC-VOLUMETHREE&Category_Code=QC"><img src="../random/qcvol3.jpg"></a>
+<br>
+<a href="http://www.topatoco.com/merchant.mvc?Screen=PROD&Store_Code=TO&Product_Code=QC-CATBOYFRIEND&Category_Code=QC"><img src="../images/catshirt.png"></a>
 
 
 </center>
@@ -315,6 +320,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 
 </div>
 
+</div>
 
 <div>
 
@@ -323,18 +329,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <br>
 <br>
 
-<div class="clear"> </div>
-<script type="text/javascript"><!--
-google_ad_client = "ca-pub-0126922120845423";
-/* 728x90, created 1/10/08 */
-google_ad_slot = "4226235551";
-google_ad_width = 728;
-google_ad_height = 90;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
+
 
 <div class="clear"> </div>
 <!-- Start Quantcast tag -->
@@ -350,8 +345,24 @@ labels:"Pop Culture Channel"
 </noscript>
 <!-- End Quantcast tag -->
 </div>
-<script type="text/javascript" src="http://ap.lijit.com/www/delivery/fpi.js#?z=187856&u=qcontent&width=728&height=90"></script>
+<script type="text/javascript" src="http://ap.lijit.com///www/delivery/fpi.js?z=187856&u=qcontent&width=728&height=90"></script>
 </body>
 </html>
+<p align="center">
+<div class="clear"> </div>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0126922120845423";
+/* 728x90, created 1/10/08 */
+google_ad_slot = "4226235551";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
 <a href="http://www.questionablecontent.net/privacy.php">Privacy Policy</a>
+</p>
+
+</div>
 </div>

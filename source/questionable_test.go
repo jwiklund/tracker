@@ -17,11 +17,8 @@ func TestParseQuestionable(t *testing.T) {
 		t.Fatal("Could not parse example file", err)
 	}
 	t.Logf("Result %v", items)
-	if items[0].Title != "2546" {
-		t.Fatal("Expected title of first one to be 2546")
-	}
-	if items[1].Title != "2545" {
-		t.Fatal("Expected title of second one to be 2545")
+	if items[0].Title != "2607" {
+		t.Fatal("Expected title of first one to be 2607")
 	}
 }
 
@@ -36,16 +33,8 @@ func TestQuestionableDates(t *testing.T) {
 		t.Fatal("Could not parse example file", err)
 	}
 	t.Logf("Result %v", items)
-	first, err := time.Parse("2006-1-2 03:04:05", items[0].Date)
+	_, err = time.Parse("2006-1-2 03:04:05", items[0].Date)
 	if err != nil {
 		t.Fatalf("Could not parse first date, %s: %s", items[0].Date, err.Error())
-	}
-	second, err := time.Parse("2006-1-2 03:04:05", items[1].Date)
-	if err != nil {
-		t.Fatalf("Could not parse second date, %s: %s", items[1].Date, err.Error())
-	}
-	t.Logf("First %s, Second %s", first.Format(time.ANSIC), second.Format(time.ANSIC))
-	if !second.Before(first) {
-		t.Fatal("Expected first date to be one day after second date")
 	}
 }

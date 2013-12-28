@@ -2,8 +2,7 @@ package source
 
 func questionablePatterns() StringMap {
 	return StringMap{
-		"curr": "<img id=\"strip\" src=\"http://www.questionablecontent.net/comics/(\\d+).png\">",
-		"prev": "<li><a href=\"view.php\\?comic=(\\d+)\">Previous</a></li>",
+		"curr": "<img src=\"http://www.questionablecontent.net/comics/(\\d+).png\">",
 	}
 }
 
