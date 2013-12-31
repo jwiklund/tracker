@@ -3,7 +3,7 @@ package rss
 import (
 	"encoding/xml"
 	"github.com/jwiklund/tracker/source"
-	gorss "github.com/ungerik/go-rss"
+	gorss "github.com/jwiklund/go-rss"
 	"io"
 	"time"
 )
