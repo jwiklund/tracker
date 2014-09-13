@@ -13,6 +13,7 @@ import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
 
 import so.born.tracker.comic.Questionable;
+import so.born.tracker.comic.XKCD;
 import so.born.tracker.jersey.ErrorMessageWriter;
 import so.born.tracker.jersey.SyndFeedWriter;
 
@@ -32,6 +33,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new SyndFeedWriter());
         environment.jersey().register(new TrackerResource());
         environment.jersey().register(new Questionable(client));
+        environment.jersey().register(new XKCD(client));
         environment.healthChecks().register("config", new TrackerConfigHealh());
     }
 

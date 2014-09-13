@@ -19,32 +19,29 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
-@Path("/questionable")
+@Path("/xkcd")
 @Produces(MediaType.APPLICATION_XML)
-public class Questionable {
+public class XKCD {
 
-    private static final String URL = "http://questionablecontent.net/";
+    private static final String URL = "http://xkcd.com/";
     private WebResource resource;
 
-    public Questionable(Client client) {
-        this.resource = client.resource(URL);
+    public XKCD(Client client) {
+        resource = client.resource(URL);
     }
 
     @GET
     public SyndFeed feed() throws UniformInterfaceException, ClientHandlerException, IOException {
-        ComicFeed feed = new ComicFeed("77233e8e-5c9d-47e9-ac61-c62f1740a1b6", "Questionable Content");
+        ComicFeed feed = new ComicFeed("f5ce5c19-4793-435f-bd3d-337d3bf7ab7e", "XKCD");
 
         Document document = Jsoup.parse(resource.get(InputStream.class), "utf8", URL);
         Elements comic = document.select("#comic img");
-        if (comic.size() == 1) {
-            if (comic.size() == 1) {
-                feed.addEntry(comic.get(0).attr("src"));
-            } else {
-                LoggerFactory.getLogger(getClass()).warn("No comic found for #comic img");
-            }
-        }
 
+        if (comic.size() == 1) {
+            feed.addEntry(comic.get(0).attr("src"), comic.get(0).attr("title"));
+        } else {
+            LoggerFactory.getLogger(getClass()).warn("No comic found for #comic img");
+        }
         return feed.toFeed();
     }
-
 }
