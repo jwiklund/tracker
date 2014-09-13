@@ -46,7 +46,7 @@ public class Sinfest {
         for (Element element : comic) {
             String url = element.attr("src");
             if (url != null && url.matches(".*?\\d{4}-\\d{2}-\\d{2}.gif")) {
-                feed.addEntry(url, element.attr("alt"));
+                feed.addEntry(URL + url, element.attr("alt"));
                 missing = false;
                 break;
             } else {
