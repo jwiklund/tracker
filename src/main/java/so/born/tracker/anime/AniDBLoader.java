@@ -17,14 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 public class AniDBLoader {
-    /**
-     * <aid>|<type>|<language>|<title>
-     * type:
-     *   1=primary title (one per anime),
-     *   2=synonyms (multiple per anime),
-     *   3=shorttitles (multiple per anime),
-     *   4=official title (one per language)
-     */
+
     public static SortedMap<String, Long> load(Path data) throws IOException {
         Path titles = data.resolve("anime-titles.dat.gz");
         InputStream file = Files.newInputStream(titles, StandardOpenOption.READ);
@@ -46,9 +39,6 @@ public class AniDBLoader {
         return mapping;
     }
 
-    private final static ImmutableSet<String> LANGUAGES = ImmutableSet.of("en", "x-jat");
-    private final static ImmutableSet<String> TYPES = ImmutableSet.of("1", "2", "4");
-
     private static class Mapping {
         public final String name;
         public final Long aid;
@@ -58,6 +48,16 @@ public class AniDBLoader {
         }
     }
 
+    /*
+     * <aid>|<type>|<language>|<title>
+     * type:
+     *   1=primary title (one per anime),
+     *   2=synonyms (multiple per anime),
+     *   3=shorttitles (multiple per anime),
+     *   4=official title (one per language)
+     */
+    private final static ImmutableSet<String> LANGUAGES = ImmutableSet.of("en", "x-jat");
+    private final static ImmutableSet<String> TYPES = ImmutableSet.of("1", "2", "4");
     private static Optional<Mapping> parseLine(String line) {
         int idDelim = line.indexOf('|');
         int typeDelim = line.indexOf('|', idDelim + 1);
