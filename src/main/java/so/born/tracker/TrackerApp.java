@@ -12,6 +12,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
 
+import so.born.tracker.anime.HorribleFetcher;
+import so.born.tracker.anime.NewReleases;
 import so.born.tracker.comic.Questionable;
 import so.born.tracker.comic.Sinfest;
 import so.born.tracker.comic.XKCD;
@@ -36,6 +38,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
         environment.jersey().register(new Sinfest(client));
+        environment.jersey().register(new NewReleases(new HorribleFetcher(client)));
         environment.healthChecks().register("config", new TrackerConfigHealh());
     }
 
