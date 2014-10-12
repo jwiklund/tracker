@@ -1,0 +1,70 @@
+package so.born.tracker.anime;
+
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.everyItem;
+import static org.junit.Assert.assertThat;
+
+import java.io.InputStream;
+import java.util.List;
+
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import so.born.tracker.anime.HorribleFetcher;
+import so.born.tracker.anime.HorribleParser;
+import so.born.tracker.anime.HorribleParser.Episode;
+import so.born.tracker.anime.HorribleParser.Torrent;
+
+import com.google.common.base.Strings;
+
+public class HorribleParserTest {
+    @Test
+    public void testParseExample() throws Exception {
+        InputStream stream = getClass().getClassLoader().getResourceAsStream("horrible.html");
+        Document doc = Jsoup.parse(stream, "UTF-8", HorribleFetcher.URL);
+        List<Episode> episodes = new HorribleParser().parse(doc);
+        assertThat(episodes, everyItem(allOf(hasInfo(), hasTorrents())));
+    }
+
+    private static Matcher<Episode> hasTorrents() {
+        return new TypeSafeMatcher<Episode>() {
+            public void describeTo(Description description) {
+                description.appendText("Has torrent with info");
+            }
+            protected boolean matchesSafely(Episode item) {
+                if (item.getTorrents().isEmpty()) {
+                    return false;
+                }
+                for (Torrent torrent : item.getTorrents().values()) {
+                    if (Strings.isNullOrEmpty(torrent.getLink())) {
+                        return false;
+                    }
+                    if (Strings.isNullOrEmpty(torrent.getName())) {
+                        return false;
+                    }
+                    if (Strings.isNullOrEmpty(torrent.getSize())) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
+    }
+
+    private static Matcher<Episode> hasInfo() {
+        return new TypeSafeMatcher<Episode>() {
+            public void describeTo(Description description) {
+                description.appendText("Has id, name and episode");
+            }
+            protected boolean matchesSafely(Episode item) {
+                return !Strings.isNullOrEmpty(item.getId()) &&
+                        !Strings.isNullOrEmpty(item.getName()) &&
+                        !Strings.isNullOrEmpty(item.getNumber());
+            }
+        };
+    }
+}
