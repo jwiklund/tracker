@@ -20,10 +20,9 @@ public class ReleasesFeed {
         this.guid = guid;
     }
 
-    public void addRelease(String name) {
+    public void addRelease(String name, String link) {
         SyndEntryImpl entry = new SyndEntryImpl();
         entry.setTitle(name);
-        String link = "https://track.born.so/horrible/track/" + name;
         entry.setLink(link);
         SyndContentImpl content = new SyndContentImpl();
         content.setType("text/html");

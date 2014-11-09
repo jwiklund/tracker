@@ -99,6 +99,17 @@ public class HorribleParser {
         public void setTorrents(Map<String, HorribleParser.Torrent> torrents) {
             this.torrents = torrents;
         }
+        public String getLink() {
+            String fallback = "";
+            for (Map.Entry<String, HorribleParser.Torrent> torrent : torrents.entrySet()) {
+                if ("720p".equals(torrent.getKey())) {
+                    return torrent.getValue().getLink();
+                } else if ("480p".equals(torrent.getKey())) {
+                    fallback = torrent.getValue().getLink();
+                }
+            }
+            return fallback;
+        }
         @Override
         public int hashCode() {
             final int prime = 31;
