@@ -9,9 +9,16 @@ import com.rometools.rome.feed.synd.SyndEntryImpl;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.feed.synd.SyndFeedImpl;
 
-public class NewReleasesFeed {
+public class ReleasesFeed {
 
+    private String title;
+    private String guid;
     private List<SyndEntry> entries = new ArrayList<>();
+
+    public ReleasesFeed(String title, String guid) {
+        this.title = title;
+        this.guid = guid;
+    }
 
     public void addRelease(String name) {
         SyndEntryImpl entry = new SyndEntryImpl();
@@ -28,9 +35,9 @@ public class NewReleasesFeed {
     public SyndFeed toFeed() {
         SyndFeed sf = new SyndFeedImpl();
         sf.setFeedType("rss_2.0");
-        sf.setTitle("New releases");
-        sf.setDescription("New releases");
-        sf.setLink("19610b12-0c77-48e5-871d-3045249238e5");
+        sf.setTitle(title);
+        sf.setDescription(title);
+        sf.setLink(guid);
         sf.setEntries(entries);
         return sf;
     }

@@ -11,21 +11,25 @@ import so.born.tracker.anime.HorribleParser.Episode;
 
 import com.rometools.rome.feed.synd.SyndFeed;
 
-@Path("/horrible/new")
+@Path("/horrible/follow")
 @Produces(MediaType.APPLICATION_XML)
-public class NewReleases {
+public class FollowReleases {
 
     private HorribleFetcher fetcher;
+    private FollowingAnimes following;
 
-    public NewReleases(HorribleFetcher fetcher) {
+    public FollowReleases(HorribleFetcher fetcher, FollowingAnimes following) {
         this.fetcher = fetcher;
+        this.following = following;
     }
 
     @GET
     public SyndFeed feed() throws IOException {
-        ReleasesFeed feed = new ReleasesFeed("New releases", "19610b12-0c77-48e5-871d-3045249238e5");
+        ReleasesFeed feed = new ReleasesFeed("Following releases", "a6479a71-20c6-432a-b0f2-544ec57dfc23");
         for (Episode ep : fetcher.feed()) {
-            feed.addRelease(ep.getName());
+            if (following.following(ep)) {                
+                feed.addRelease(ep.getName());
+            }
         }
         return feed.toFeed();
     }
