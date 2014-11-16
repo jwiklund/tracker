@@ -36,7 +36,7 @@ public class ReleasesFeed {
             List<String> alts = altLinks.values().stream()
                     .map(t -> String.format("<a href=\"%s\">%s</a>", t.getLink(), t.getSize()))
                     .collect(Collectors.toList());
-            contentValue = contentValue + "(" + Joiner.on(" | ").join(alts) + ")";
+            contentValue = contentValue + " (" + Joiner.on(" | ").join(alts) + ")";
         }
         content.setValue(contentValue);
         entry.getContents().add(content);

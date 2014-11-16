@@ -115,10 +115,9 @@ public class HorribleParser {
             Map<String, Torrent> alts = new LinkedHashMap<>();
             Torrent main = getLink();
             for (Map.Entry<String, HorribleParser.Torrent> torrent : torrents.entrySet()) {
-                if (torrent.getValue().getLink().equals(main)) {
-                    continue;
+                if (torrent.getValue() != main) {
+                    alts.put(torrent.getKey(), torrent.getValue());
                 }
-                alts.put(torrent.getKey(), torrent.getValue());
             }
             return alts;
         }
