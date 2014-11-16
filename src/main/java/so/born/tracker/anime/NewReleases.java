@@ -25,7 +25,9 @@ public class NewReleases {
     public SyndFeed feed() throws IOException {
         ReleasesFeed feed = new ReleasesFeed("New releases", "19610b12-0c77-48e5-871d-3045249238e5");
         for (Episode ep : fetcher.feed()) {
-            feed.addRelease(ep.getName(), ep.getLink(), ep.getAltLinks());
+            if (ep.getNumber().matches("0*1")) {
+                feed.addRelease(ep.getName(), ep.getLink(), ep.getAltLinks());
+            }
         }
         return feed.toFeed();
     }
