@@ -1,5 +1,6 @@
 .classpath
 .project
 .settings
+config.yaml
 target
 data

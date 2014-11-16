@@ -2,6 +2,7 @@ package so.born.tracker.anime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -99,17 +100,29 @@ public class HorribleParser {
         public void setTorrents(Map<String, HorribleParser.Torrent> torrents) {
             this.torrents = torrents;
         }
-        public String getLink() {
-            String fallback = "";
+        public Torrent getLink() {
+            Torrent fallback = new Torrent("", "", "");
             for (Map.Entry<String, HorribleParser.Torrent> torrent : torrents.entrySet()) {
                 if ("720p".equals(torrent.getKey())) {
-                    return torrent.getValue().getLink();
+                    return torrent.getValue();
                 } else if ("480p".equals(torrent.getKey())) {
-                    fallback = torrent.getValue().getLink();
+                    fallback = torrent.getValue();
                 }
             }
             return fallback;
         }
+        public Map<String, Torrent> getAltLinks() {
+            Map<String, Torrent> alts = new LinkedHashMap<>();
+            Torrent main = getLink();
+            for (Map.Entry<String, HorribleParser.Torrent> torrent : torrents.entrySet()) {
+                if (torrent.getValue().getLink().equals(main)) {
+                    continue;
+                }
+                alts.put(torrent.getKey(), torrent.getValue());
+            }
+            return alts;
+        }
+
         @Override
         public int hashCode() {
             final int prime = 31;

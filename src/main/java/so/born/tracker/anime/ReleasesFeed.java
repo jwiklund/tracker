@@ -2,7 +2,12 @@ package so.born.tracker.anime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import so.born.tracker.anime.HorribleParser.Torrent;
+
+import com.google.common.base.Joiner;
 import com.rometools.rome.feed.synd.SyndContentImpl;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndEntryImpl;
@@ -20,13 +25,20 @@ public class ReleasesFeed {
         this.guid = guid;
     }
 
-    public void addRelease(String name, String link) {
+    public void addRelease(String name, Torrent torrent, Map<String, Torrent> altLinks) {
         SyndEntryImpl entry = new SyndEntryImpl();
         entry.setTitle(name);
-        entry.setLink(link);
+        entry.setLink(torrent.getLink());
         SyndContentImpl content = new SyndContentImpl();
         content.setType("text/html");
-        content.setValue(String.format("<a href=\"%s\">%s</a>", link, name));
+        String contentValue = String.format("<a href=\"%s\">%s (%s)</a>", torrent.getLink(), name, torrent.getSize());
+        if (!altLinks.isEmpty()) {
+            List<String> alts = altLinks.values().stream()
+                    .map(t -> String.format("<a href=\"%s\">%s</a>", t.getLink(), t.getSize()))
+                    .collect(Collectors.toList());
+            contentValue = contentValue + "(" + Joiner.on(" | ").join(alts) + ")";
+        }
+        content.setValue(contentValue);
         entry.getContents().add(content);
         entries.add(entry);
     }
