@@ -36,6 +36,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         Client client = new ApacheHttpClient4(new ApacheHttpClient4Handler(httpClient, new BasicCookieStore(), false));
         environment.jersey().register(new ErrorMessageWriter());
         environment.jersey().register(new SyndFeedWriter());
+        environment.jersey().register(new TrackerPing());
         environment.jersey().register(new TrackerResource());
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
