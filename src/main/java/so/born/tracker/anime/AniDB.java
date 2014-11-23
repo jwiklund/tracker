@@ -1,14 +1,19 @@
 package so.born.tracker.anime;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,23 +21,44 @@ import org.slf4j.LoggerFactory;
 public class AniDB {
     private final static Logger log = LoggerFactory.getLogger(AniDB.class);
 
-    private SortedMap<String, Long> mapping;
+    private CompletableFuture<SortedMap<String, Long>> mapping;
 
     public AniDB(SortedMap<String, Long> mapping) {
+        this.mapping = CompletableFuture.completedFuture(mapping);
+    }
+
+    public AniDB(CompletableFuture<SortedMap<String, Long>> mapping) {
         this.mapping = mapping;
     }
 
-    public static AniDB load(Path data) throws IOException {
-        SortedMap<String, Long> mapping = AniDBLoader.load(data);
-        log.info("Mapping has {} entries", mapping.size());
+    public static AniDB load(String data, ExecutorService executor) throws IOException {
+        CompletableFuture<SortedMap<String, Long>> mapping = CompletableFuture.supplyAsync(() -> {
+            SortedMap<String, Long> load;
+            try {
+                load = AniDBLoader.load(FileSystems.getDefault().getPath(data));
+            } catch (IOException e) {
+                log.warn("Load mapping failed", e);
+                return new TreeMap<>();
+            }
+            log.info("Mapping has {} entries", load.size());
+            return load;
+        }, executor);
         return new AniDB(mapping);
+    }
+
+    public Optional<Long> lookupFirst(String name) {
+        List<Long> matches = lookup(name);
+        if (matches.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(matches.get(0));
     }
 
     public List<Long> lookup(String name) {
         Set<Long> aids = new HashSet<>();
         name = name.toLowerCase();
         Long eq = null;
-        for (Map.Entry<String, Long> entry : mapping.tailMap(name).entrySet()) {
+        for (Map.Entry<String, Long> entry : getMapping().tailMap(name).entrySet()) {
             if (name.equals(entry.getKey())) {
                 eq = entry.getValue();
             } else if (!entry.getKey().startsWith(name)) {
@@ -54,5 +80,15 @@ public class AniDB {
             result = newResult;
         }
         return result;
+    }
+
+    private SortedMap<String, Long> getMapping() {
+        try {
+            return mapping.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
     }
 }

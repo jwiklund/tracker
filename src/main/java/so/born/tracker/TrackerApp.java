@@ -1,9 +1,13 @@
 package so.born.tracker;
 
+import java.util.concurrent.ExecutorService;
+
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import so.born.tracker.anime.AniDB;
 import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
 import so.born.tracker.anime.HorribleFetcher;
@@ -28,8 +32,11 @@ public class TrackerApp extends Application<TrackerConfig> {
         final Client client = new JerseyClientBuilder(environment)
             .using(config.getJerseyClientConfiguration())
             .build(getName());
+        final ExecutorService executor = new ExecutorServiceBuilder(environment.lifecycle(), "executors")
+            .build();
 
-        HorribleFetcher fetcher = new HorribleFetcher(client);
+        AniDB anidb = AniDB.load(config.getAnimeDBDump(), executor);
+        HorribleFetcher fetcher = new HorribleFetcher(client, anidb);
 
         environment.jersey().register(new ErrorMessageWriter());
         environment.jersey().register(new SyndFeedWriter());
@@ -42,7 +49,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new FollowReleases(fetcher,
                 new FollowingAnimes(config.getFollowedAnimes())));
 
-        environment.healthChecks().register("config", new TrackerConfigHealh());
+        environment.healthChecks().register("config", new TrackerConfigHealh(config));
     }
 
     @Override

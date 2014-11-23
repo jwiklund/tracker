@@ -26,7 +26,7 @@ public class NewReleases {
         ReleasesFeed feed = new ReleasesFeed("New releases", "19610b12-0c77-48e5-871d-3045249238e5");
         for (Episode ep : fetcher.feed()) {
             if (ep.getNumber().matches("0*1")) {
-                feed.addRelease(ep.getLink(), ep.getAltLinks());
+                feed.addRelease(ep);
             }
         }
         return feed.toFeed();

@@ -31,4 +31,12 @@ public class TrackerConfig extends Configuration {
     public Set<String> getFollowedAnimes() {
         return new HashSet<>(followedAnimes);
     }
+
+    @NotNull
+    @JsonProperty
+    private String animeDBDump = "";
+
+    public String getAnimeDBDump() {
+        return animeDBDump;
+    }
 }

@@ -28,7 +28,7 @@ public class FollowReleases {
         ReleasesFeed feed = new ReleasesFeed("Following releases", "a6479a71-20c6-432a-b0f2-544ec57dfc23");
         for (Episode ep : fetcher.feed()) {
             if (following.following(ep)) {                
-                feed.addRelease(ep.getLink(), ep.getAltLinks());
+                feed.addRelease(ep);
             }
         }
         return feed.toFeed();

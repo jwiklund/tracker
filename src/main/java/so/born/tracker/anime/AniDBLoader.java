@@ -16,11 +16,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * Source http://anidb.net/api/animetitles.xml.gz
+ */
 public class AniDBLoader {
 
     public static SortedMap<String, Long> load(Path data) throws IOException {
-        Path titles = data.resolve("anime-titles.dat.gz");
-        InputStream file = Files.newInputStream(titles, StandardOpenOption.READ);
+        InputStream file = Files.newInputStream(data, StandardOpenOption.READ);
         BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(file), Charsets.UTF_8));
         TreeMap<String, Long> mapping = new TreeMap<String, Long>();
         String line;
@@ -72,7 +74,7 @@ public class AniDBLoader {
         if (!LANGUAGES.contains(lang)) {
             return Optional.absent();
         }
-        String anime = line.substring(langDelim + 1);
+        String anime = line.substring(langDelim + 1).toLowerCase();
         return Optional.of(new Mapping(anime, Long.valueOf(aid)));
     }
 }
