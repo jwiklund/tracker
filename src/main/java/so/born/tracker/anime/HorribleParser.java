@@ -54,7 +54,7 @@ public class HorribleParser {
                 if (link == null) {
                     log.info("No Torrent link for {}, {}", name, size);
                 }
-                torrents.put(size, new HorribleParser.Torrent(name, size, link));
+                torrents.put(size, new HorribleParser.Torrent(anime + " - " + number, size, link));
             }
             if (torrents.isEmpty()) {
                 log.warn("No Torrent links for {}", id);

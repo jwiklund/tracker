@@ -25,13 +25,13 @@ public class ReleasesFeed {
         this.guid = guid;
     }
 
-    public void addRelease(String name, Torrent torrent, Map<String, Torrent> altLinks) {
+    public void addRelease(Torrent torrent, Map<String, Torrent> altLinks) {
         SyndEntryImpl entry = new SyndEntryImpl();
-        entry.setTitle(name);
+        entry.setTitle(torrent.getName());
         entry.setLink(torrent.getLink());
         SyndContentImpl content = new SyndContentImpl();
         content.setType("text/html");
-        String contentValue = String.format("<a href=\"%s\">%s (%s)</a>", torrent.getLink(), name, torrent.getSize());
+        String contentValue = String.format("<a href=\"%s\">%s (%s)</a>", torrent.getLink(), torrent.getName(), torrent.getSize());
         if (!altLinks.isEmpty()) {
             List<String> alts = altLinks.values().stream()
                     .map(t -> String.format("<a href=\"%s\">%s</a>", t.getLink(), t.getSize()))
