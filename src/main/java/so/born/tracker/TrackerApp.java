@@ -21,6 +21,7 @@ import so.born.tracker.comic.Sinfest;
 import so.born.tracker.comic.XKCD;
 import so.born.tracker.jersey.ErrorMessageWriter;
 import so.born.tracker.jersey.SyndFeedWriter;
+import so.born.tracker.jersey.Ping;
 
 public class TrackerApp extends Application<TrackerConfig> {
 
@@ -36,7 +37,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         Client client = new ApacheHttpClient4(new ApacheHttpClient4Handler(httpClient, new BasicCookieStore(), false));
         environment.jersey().register(new ErrorMessageWriter());
         environment.jersey().register(new SyndFeedWriter());
-        environment.jersey().register(new TrackerPing());
+        environment.jersey().register(new Ping());
         environment.jersey().register(new TrackerResource());
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
