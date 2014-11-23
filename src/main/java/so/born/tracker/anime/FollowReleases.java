@@ -1,6 +1,8 @@
 package so.born.tracker.anime;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,7 +14,6 @@ import so.born.tracker.anime.HorribleParser.Episode;
 import com.rometools.rome.feed.synd.SyndFeed;
 
 @Path("/horrible/follow")
-@Produces(MediaType.APPLICATION_XML)
 public class FollowReleases {
 
     private HorribleFetcher fetcher;
@@ -24,6 +25,7 @@ public class FollowReleases {
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_XML)
     public SyndFeed feed() throws IOException {
         ReleasesFeed feed = new ReleasesFeed("Following releases", "a6479a71-20c6-432a-b0f2-544ec57dfc23");
         for (Episode ep : fetcher.feed()) {
@@ -32,5 +34,16 @@ public class FollowReleases {
             }
         }
         return feed.toFeed();
+    }
+ 
+    @GET
+    @Path("preview")
+    @Produces(MediaType.TEXT_HTML)
+    public ReleaseView preview() throws IOException {
+        List<String> episodes = new ArrayList<>();
+        for (Episode ep : fetcher.feed()) {
+            episodes.add(ReleasesFeed.content(ep));
+        }
+        return new ReleaseView("Following releases", episodes);
     }
 }

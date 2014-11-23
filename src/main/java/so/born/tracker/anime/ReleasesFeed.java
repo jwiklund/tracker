@@ -26,14 +26,20 @@ public class ReleasesFeed {
     }
 
     public void addRelease(Episode ep) {
-        Torrent torrent = ep.getLink();
         SyndEntryImpl entry = new SyndEntryImpl();
         SyndContentImpl content = new SyndContentImpl();
 
         entry.setTitle(ep.getName());
-        entry.setLink(torrent.getLink());
+        entry.setLink(ep.getLink().getLink());
         content.setType("text/html");
 
+        content.setValue(content(ep));
+        entry.getContents().add(content);
+        entries.add(entry);
+    }
+
+    public static String content(Episode ep) {
+        Torrent torrent = ep.getLink();
         String contentValue = String.format("<a href=\"%s\">%s (%s)</a>",
                 torrent.getLink(), torrent.getName(), torrent.getSize());
         if (ep.getAniDBId().isPresent()) {
@@ -45,9 +51,7 @@ public class ReleasesFeed {
                     .collect(Collectors.toList());
             contentValue = contentValue + " (" + Joiner.on(" | ").join(alts) + ")";
         }
-        content.setValue(contentValue);
-        entry.getContents().add(content);
-        entries.add(entry);
+        return contentValue;
     }
 
     public SyndFeed toFeed() {

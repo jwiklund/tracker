@@ -7,6 +7,7 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
 import so.born.tracker.anime.AniDB;
 import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
@@ -25,6 +26,7 @@ public class TrackerApp extends Application<TrackerConfig> {
 
     @Override
     public void initialize(Bootstrap<TrackerConfig> bootstrap) {
+        bootstrap.addBundle(new ViewBundle());
     }
 
     @Override
