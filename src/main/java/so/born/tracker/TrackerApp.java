@@ -1,17 +1,9 @@
 package so.born.tracker;
 
 import io.dropwizard.Application;
-import io.dropwizard.client.HttpClientBuilder;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.BasicCookieStore;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
-import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
-
 import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
 import so.born.tracker.anime.HorribleFetcher;
@@ -20,8 +12,10 @@ import so.born.tracker.comic.Questionable;
 import so.born.tracker.comic.Sinfest;
 import so.born.tracker.comic.XKCD;
 import so.born.tracker.jersey.ErrorMessageWriter;
-import so.born.tracker.jersey.SyndFeedWriter;
 import so.born.tracker.jersey.Ping;
+import so.born.tracker.jersey.SyndFeedWriter;
+
+import com.sun.jersey.api.client.Client;
 
 public class TrackerApp extends Application<TrackerConfig> {
 
@@ -31,10 +25,12 @@ public class TrackerApp extends Application<TrackerConfig> {
 
     @Override
     public void run(TrackerConfig config, Environment environment) throws Exception {
-        final HttpClient httpClient = new HttpClientBuilder(environment)
-            .using(config.getHttpClientConfiguration())
-            .build("http");
-        Client client = new ApacheHttpClient4(new ApacheHttpClient4Handler(httpClient, new BasicCookieStore(), false));
+        final Client client = new JerseyClientBuilder(environment)
+            .using(config.getJerseyClientConfiguration())
+            .build(getName());
+
+        HorribleFetcher fetcher = new HorribleFetcher(client);
+
         environment.jersey().register(new ErrorMessageWriter());
         environment.jersey().register(new SyndFeedWriter());
         environment.jersey().register(new Ping());
@@ -42,10 +38,10 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
         environment.jersey().register(new Sinfest(client));
-        HorribleFetcher fetcher = new HorribleFetcher(client);
         environment.jersey().register(new NewReleases(fetcher));
         environment.jersey().register(new FollowReleases(fetcher,
                 new FollowingAnimes(config.getFollowedAnimes())));
+
         environment.healthChecks().register("config", new TrackerConfigHealh());
     }
 

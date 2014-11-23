@@ -1,5 +1,8 @@
 package so.born.tracker;
 
+import io.dropwizard.Configuration;
+import io.dropwizard.client.JerseyClientConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,17 +13,14 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.dropwizard.Configuration;
-import io.dropwizard.client.HttpClientConfiguration;
-
 public class TrackerConfig extends Configuration {
 
     @Valid
     @NotNull
     @JsonProperty
-    private HttpClientConfiguration httpClient = new HttpClientConfiguration();
+    private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();
 
-    public HttpClientConfiguration getHttpClientConfiguration() {
+    public JerseyClientConfiguration getJerseyClientConfiguration() {
         return httpClient;
     }
 
