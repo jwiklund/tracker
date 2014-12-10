@@ -5,3 +5,9 @@ server:
   adminConnectors:
   - type: http
     port: 9001
+
+# source http://anidb.net/api/anime-titles.dat.gz
+animeDBDump: data/anime-titles.dat.gz
+
+followedAnimes:
+  - One Piece

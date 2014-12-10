@@ -35,7 +35,7 @@ public class AniDBLoader {
             }
             Optional<Mapping> anime = parseLine(line);
             if (anime.isPresent()) {
-                mapping.put(anime.get().name.toLowerCase(), anime.get().aid);
+                mapping.put(AniDB.normalizeName(anime.get().name), anime.get().aid);
             }
         }
         return mapping;

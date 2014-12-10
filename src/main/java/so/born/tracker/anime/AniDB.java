@@ -18,6 +18,9 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+import com.google.common.io.CharStreams;
+
 public class AniDB {
     private final static Logger log = LoggerFactory.getLogger(AniDB.class);
 
@@ -56,7 +59,7 @@ public class AniDB {
 
     public List<Long> lookup(String name) {
         Set<Long> aids = new HashSet<>();
-        name = name.toLowerCase();
+        name = normalizeName(name);
         Long eq = null;
         for (Map.Entry<String, Long> entry : getMapping().tailMap(name).entrySet()) {
             if (name.equals(entry.getKey())) {
@@ -90,5 +93,20 @@ public class AniDB {
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
         }
+    }
+
+    public static String normalizeName(String name) {
+        String stripped = name.codePoints()
+            .filter(cp -> Character.isLetterOrDigit(cp) || Character.isWhitespace(cp))
+            .map(i -> Character.toLowerCase(i))
+            .collect(() -> new StringBuilder(),
+                    (byteBuffer, charCode) -> byteBuffer.append(Character.toChars(charCode)),
+                    (charCode1, charCode2) -> charCode1.append(charCode2))
+            .toString();
+        System.out.println(name + " -> " + stripped);
+        if (!stripped.isEmpty()) {
+            return Joiner.on(" ").join(stripped.split(" +"));
+        }
+        return name.toLowerCase();
     }
 }
