@@ -2,6 +2,7 @@ package so.born.tracker.anime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import so.born.tracker.anime.HorribleParser.Episode;
@@ -19,8 +20,10 @@ public class ReleasesFeed {
     private String title;
     private String guid;
     private List<SyndEntry> entries = new ArrayList<>();
+    private AniDB anidb;
 
-    public ReleasesFeed(String title, String guid) {
+    public ReleasesFeed(AniDB anidb, String title, String guid) {
+        this.anidb = anidb;
         this.title = title;
         this.guid = guid;
     }
@@ -33,12 +36,12 @@ public class ReleasesFeed {
         entry.setLink(ep.getLink().getLink());
         content.setType("text/html");
 
-        content.setValue(content(ep));
+        content.setValue(content(anidb, ep));
         entry.getContents().add(content);
         entries.add(entry);
     }
 
-    public static String content(Episode ep) {
+    public static String content(AniDB anidb, Episode ep) {
         Torrent torrent = ep.getLink();
         String contentValue = String.format("<a href=\"%s\">%s (%s)</a>",
                 torrent.getLink(), torrent.getName(), torrent.getSize());
@@ -50,6 +53,10 @@ public class ReleasesFeed {
                     .map(t -> String.format("<a href=\"%s\">%s</a>", t.getLink(), t.getSize()))
                     .collect(Collectors.toList());
             contentValue = contentValue + " (" + Joiner.on(" | ").join(alts) + ")";
+        }
+        Optional<Long> maybeAnidb = anidb.lookupFirst(ep.getName());
+        if (maybeAnidb.isPresent()) {
+            contentValue = contentValue + String.format("[<a href=\"http://anidb.net/perl-bin/animedb.pl?show=anime&aid=%d\" target=\"_new\">AniDB</a>]", maybeAnidb.get());
         }
         return contentValue;
     }

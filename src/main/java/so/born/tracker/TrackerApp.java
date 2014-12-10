@@ -47,8 +47,8 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
         environment.jersey().register(new Sinfest(client));
-        environment.jersey().register(new NewReleases(fetcher));
-        environment.jersey().register(new FollowReleases(fetcher,
+        environment.jersey().register(new NewReleases(anidb, fetcher));
+        environment.jersey().register(new FollowReleases(anidb, fetcher,
                 new FollowingAnimes(config.getFollowedAnimes())));
 
         environment.healthChecks().register("config", new TrackerConfigHealh(config));

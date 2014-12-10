@@ -18,8 +18,10 @@ public class FollowReleases {
 
     private HorribleFetcher fetcher;
     private FollowingAnimes following;
+    private AniDB anidb;
 
-    public FollowReleases(HorribleFetcher fetcher, FollowingAnimes following) {
+    public FollowReleases(AniDB anidb, HorribleFetcher fetcher, FollowingAnimes following) {
+        this.anidb = anidb;
         this.fetcher = fetcher;
         this.following = following;
     }
@@ -27,7 +29,7 @@ public class FollowReleases {
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public SyndFeed feed() throws IOException {
-        ReleasesFeed feed = new ReleasesFeed("Following releases", "a6479a71-20c6-432a-b0f2-544ec57dfc23");
+        ReleasesFeed feed = new ReleasesFeed(anidb, "Following releases", "a6479a71-20c6-432a-b0f2-544ec57dfc23");
         for (Episode ep : fetcher.feed()) {
             if (following.following(ep)) {                
                 feed.addRelease(ep);
@@ -42,7 +44,9 @@ public class FollowReleases {
     public ReleaseView preview() throws IOException {
         List<String> episodes = new ArrayList<>();
         for (Episode ep : fetcher.feed()) {
-            episodes.add(ReleasesFeed.content(ep));
+            if (following.following(ep)) {
+                episodes.add(ReleasesFeed.content(anidb, ep));                
+            }
         }
         return new ReleaseView("Following releases", episodes);
     }
