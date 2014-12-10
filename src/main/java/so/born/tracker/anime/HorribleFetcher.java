@@ -16,9 +16,9 @@ public class HorribleFetcher {
     private WebResource resource;
     private HorribleParser parser;
 
-    public HorribleFetcher(Client client, AniDB anidb) {
+    public HorribleFetcher(Client client) {
         resource = client.resource(URL);
-        parser = new HorribleParser(anidb);
+        parser = new HorribleParser();
     }
 
     public List<HorribleParser.Episode> feed() throws IOException {

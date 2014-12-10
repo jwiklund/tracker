@@ -38,7 +38,7 @@ public class TrackerApp extends Application<TrackerConfig> {
             .build();
 
         AniDB anidb = AniDB.load(config.getAnimeDBDump(), executor);
-        HorribleFetcher fetcher = new HorribleFetcher(client, anidb);
+        HorribleFetcher fetcher = new HorribleFetcher(client);
 
         environment.jersey().register(new ErrorMessageWriter());
         environment.jersey().register(new SyndFeedWriter());

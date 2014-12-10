@@ -2,7 +2,9 @@ package so.born.tracker.anime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import so.born.tracker.anime.HorribleParser.Episode;
@@ -45,18 +47,22 @@ public class ReleasesFeed {
         Torrent torrent = ep.getLink();
         String contentValue = String.format("<a href=\"%s\">%s (%s)</a>",
                 torrent.getLink(), torrent.getName(), torrent.getSize());
-        if (ep.getAniDBId().isPresent()) {
-            contentValue = contentValue + String.format(" <a href=\"http://anidb.net/perl-bin/animedb.pl?show=anime&aid=%d\">AniDB</a> ", ep.getAniDBId().get());
-        }
-        if (!ep.getAltLinks().isEmpty()) {
-            List<String> alts = ep.getAltLinks().values().stream()
-                    .map(t -> String.format("<a href=\"%s\">%s</a>", t.getLink(), t.getSize()))
-                    .collect(Collectors.toList());
-            contentValue = contentValue + " (" + Joiner.on(" | ").join(alts) + ")";
+        Map<String, String> links = new TreeMap<String, String>(new LinkSorter());
+        for (Map.Entry<String, Torrent> link : ep.getAltLinks().entrySet()) {
+            links.put(link.getValue().getSize(), link.getValue().getLink());
         }
         Optional<Long> maybeAnidb = anidb.lookupFirst(ep.getName());
         if (maybeAnidb.isPresent()) {
-            contentValue = contentValue + String.format("[<a href=\"http://anidb.net/perl-bin/animedb.pl?show=anime&aid=%d\" target=\"_new\">AniDB</a>]", maybeAnidb.get());
+            links.put("AniDB", "http://anidb.net/perl-bin/animedb.pl?show=anime&aid=" + maybeAnidb.get());
+        }
+        if (!links.isEmpty()) {
+            List<String> refs = links.entrySet().stream()
+                    .map(l -> String.format("<a href=\"%s\"%s>%s</a>",
+                            l.getValue(),
+                            l.getKey().equals("AniDB") ? " target=\"_new\"" : "",
+                            l.getKey()))
+                    .collect(Collectors.toList());
+            contentValue = contentValue + " (" + Joiner.on(" | ").join(refs) + ")";
         }
         return contentValue;
     }
