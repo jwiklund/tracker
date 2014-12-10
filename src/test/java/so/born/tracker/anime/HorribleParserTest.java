@@ -2,14 +2,10 @@ package so.born.tracker.anime;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.everyItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
-import java.util.TreeMap;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -28,21 +24,8 @@ public class HorribleParserTest {
     public void testParseExample() throws Exception {
         InputStream stream = getClass().getClassLoader().getResourceAsStream("horrible.html");
         Document doc = Jsoup.parse(stream, "UTF-8", HorribleFetcher.URL);
-        List<Episode> episodes = new HorribleParser(new AniDB(new TreeMap<>())).parse(doc);
+        List<Episode> episodes = new HorribleParser().parse(doc);
         assertThat(episodes, everyItem(allOf(hasInfo(), hasTorrents())));
-    }
-
-    @Test
-    public void testParseAnidb() throws Exception {
-        InputStream stream = getClass().getClassLoader().getResourceAsStream("horrible.html");
-        Document doc = Jsoup.parse(stream, "UTF-8", HorribleFetcher.URL);
-        TreeMap<String, Long> mapping = new TreeMap<>();
-        mapping.put("sora no method", 1l);
-        List<Episode> episodes = new HorribleParser(new AniDB(mapping)).parse(doc);
-
-        Optional<Episode> sora = episodes.stream().filter(e -> e.getName().equals("Sora no Method")).findFirst();
-        assertThat(sora.isPresent(), is(true));
-        assertEquals(Optional.of(1l), sora.get().getAniDBId());
     }
 
     private static Matcher<Episode> hasTorrents() {

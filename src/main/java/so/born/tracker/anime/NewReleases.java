@@ -17,15 +17,17 @@ import com.rometools.rome.feed.synd.SyndFeed;
 public class NewReleases {
 
     private HorribleFetcher fetcher;
+    private AniDB anidb;
 
-    public NewReleases(HorribleFetcher fetcher) {
+    public NewReleases(AniDB anidb, HorribleFetcher fetcher) {
+        this.anidb = anidb;
         this.fetcher = fetcher;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public SyndFeed feed() throws IOException {
-        ReleasesFeed feed = new ReleasesFeed("New releases", "19610b12-0c77-48e5-871d-3045249238e5");
+        ReleasesFeed feed = new ReleasesFeed(anidb, "New releases", "19610b12-0c77-48e5-871d-3045249238e5");
         for (Episode ep : fetcher.feed()) {
             if (ep.getNumber().matches("0*1")) {
                 feed.addRelease(ep);
@@ -41,7 +43,7 @@ public class NewReleases {
         List<String> episodes = new ArrayList<>();
         for (Episode ep : fetcher.feed()) {
             if (ep.getNumber().matches("0*1")) {
-                episodes.add(ReleasesFeed.content(ep));
+                episodes.add(ReleasesFeed.content(anidb, ep));
             }
         }
         return new ReleaseView("New releases", episodes);
