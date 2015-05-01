@@ -1,5 +1,7 @@
 package so.born.tracker.anime;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import so.born.tracker.anime.HorribleParser.Episode;
 import so.born.tracker.anime.HorribleParser.Torrent;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.rometools.rome.feed.synd.SyndContentImpl;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndEntryImpl;
@@ -54,6 +57,13 @@ public class ReleasesFeed {
         Optional<Long> maybeAnidb = anidb.lookupFirst(ep.getName());
         if (maybeAnidb.isPresent()) {
             links.put("AniDB", "http://anidb.net/perl-bin/animedb.pl?show=anime&aid=" + maybeAnidb.get());
+        } else {
+            try {
+                String encoded = URLEncoder.encode(ep.getName(), "UTF-8");
+                links.put("AniDB", "http://anidb.net/perl-bin/animedb.pl?show=search&do.search=search&adb.search=" + encoded);
+            } catch (UnsupportedEncodingException e) {
+                throw Throwables.propagate(e);
+            }
         }
         if (!links.isEmpty()) {
             List<String> refs = links.entrySet().stream()
