@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.google.common.io.CharStreams;
 
 public class AniDB {
     private final static Logger log = LoggerFactory.getLogger(AniDB.class);
@@ -103,7 +102,6 @@ public class AniDB {
                     (byteBuffer, charCode) -> byteBuffer.append(Character.toChars(charCode)),
                     (charCode1, charCode2) -> charCode1.append(charCode2))
             .toString();
-        System.out.println(name + " -> " + stripped);
         if (!stripped.isEmpty()) {
             return Joiner.on(" ").join(stripped.split(" +"));
         }
