@@ -1,7 +1,6 @@
 package so.born.tracker.comic;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +9,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.LoggerFactory;
+
+import so.born.tracker.Html;
 
 import com.google.common.base.Joiner;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -26,7 +26,6 @@ import com.sun.jersey.api.client.WebResource;
 @Path("/sinfest")
 @Produces(MediaType.APPLICATION_XML)
 public class Sinfest {
-    private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537";
     private static final String URL = "http://sinfest.net/";
     private WebResource resource;
 
@@ -38,7 +37,7 @@ public class Sinfest {
     public SyndFeed feed() throws UniformInterfaceException, ClientHandlerException, IOException {
         ComicFeed feed = new ComicFeed("a552af95-ac7c-4489-b8ac-f1141343f0e9", "Sinfest");
 
-        Document document = Jsoup.parse(resource.header("User-Agent", USER_AGENT).get(InputStream.class), "utf8", URL);
+        Document document = Html.fetch(resource, URL);
         Elements comic = document.select("table img");
 
         boolean missing = true;
