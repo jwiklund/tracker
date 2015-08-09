@@ -35,14 +35,16 @@ public class Loading {
         if (links.size() > 0) {
             String current = links.get(0).attr("href");
             Document currentDocument = Html.fetch(client.resource(current), current);
-            Elements currentImage = currentDocument.select(".comic img");
+            Elements currentImage = currentDocument.select(".comic");
             String title = currentDocument.title() != null ? currentDocument.title() : "Loading artist";
-            if (!currentImage.isEmpty()) {
-                String currentImageUrl = currentImage.attr("src");
-                if (currentImageUrl != null && currentImageUrl.startsWith("/")) {
-                    currentImageUrl = URL + currentImageUrl.substring(1);
+            for (int i = 0; i < currentImage.size(); i++) {
+                if ("comic".equals(currentImage.get(i).attr("class"))) {
+                    String currentImageUrl = currentImage.get(i).select("img").attr("src");
+                    if (currentImageUrl != null && currentImageUrl.startsWith("/")) {
+                        currentImageUrl = URL + currentImageUrl.substring(1);
+                    }
+                    feed.addEntry(currentImageUrl, title);
                 }
-                feed.addEntry(currentImageUrl, title);
             }
         }
         return feed.toFeed();
