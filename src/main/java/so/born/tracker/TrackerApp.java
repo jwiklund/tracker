@@ -1,18 +1,20 @@
 package so.born.tracker;
 
-import java.util.concurrent.ExecutorService;
-
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
+
+import java.util.concurrent.ExecutorService;
+
 import so.born.tracker.anime.AniDB;
 import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
 import so.born.tracker.anime.HorribleFetcher;
 import so.born.tracker.anime.NewReleases;
+import so.born.tracker.comic.Loading;
 import so.born.tracker.comic.Questionable;
 import so.born.tracker.comic.Sinfest;
 import so.born.tracker.comic.XKCD;
@@ -47,6 +49,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
         environment.jersey().register(new Sinfest(client));
+        environment.jersey().register(new Loading(client));
         environment.jersey().register(new NewReleases(anidb, fetcher));
         environment.jersey().register(new FollowReleases(anidb, fetcher,
                 new FollowingAnimes(config.getFollowedAnimes())));
