@@ -1,12 +1,15 @@
 package so.born.tracker.anime;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,19 +17,21 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 public class HorribleParser {
     private static Logger log = LoggerFactory.getLogger(HorribleFetcher.class);
-    private static final Pattern SIZE_PATTERN = Pattern.compile("\\[(\\d+p)\\]");
-    private static final Pattern NAME_PATTERN = Pattern.compile("\\(\\d+/\\d+\\) (.+) - ([\\d\\.]+)");
+    private static final Pattern NAME_PATTERN = Pattern.compile("(.+) - ([\\d\\.]+) \\[([^]]+)\\]");
 
     public HorribleParser() {
     }
 
     public List<Episode> parse(Document latest) {
-        List<HorribleParser.Episode> episodes = new ArrayList<>();
-        for (Element episode : latest.select("div.episode")) {
-            String id = episode.attr("id");
-            String nameNumber = episode.ownText();
+        Multimap<NameNumber, Torrent> episodes = ArrayListMultimap.create();
+        for (Element torrent : latest.select("div.release-links")) {
+            String id = torrentId(torrent.attr("class"));
+            String nameNumber = getText(torrent.select("td.dl-label i"));
             Matcher nameNumberMatcher = NAME_PATTERN.matcher(nameNumber);
             if (!nameNumberMatcher.matches()) {
                 log.warn("Name/number did not match pattern {} for {}", nameNumber, id);
@@ -34,38 +39,96 @@ public class HorribleParser {
             }
             String anime = nameNumberMatcher.group(1);
             String number = nameNumberMatcher.group(2);
-            Map<String, HorribleParser.Torrent> torrents = new HashMap<>();
-            for (Element torrent : episode.select("div.resolution-block")) {
-                Elements nameElements = torrent.select("span.dl-label i");
-                if (nameElements.size() < 1) {
-                    log.trace("No \"span.dl-label i\" in {}", torrent.toString());
-                    continue;
-                }
-                String name = nameElements.get(0).text();
-                String size = "unknown";
-                Matcher sizeMatcher = SIZE_PATTERN.matcher(name);
-                if (sizeMatcher.find()) {
-                    size = sizeMatcher.group(1);
-                }
-                String link = null;
-                for (Element linkElement : torrent.select("span.ind-link a")) {
-                    if ("Torrent".equals(linkElement.text())) {
-                        link = linkElement.attr("href");
-                        break;
-                    }
-                }
-                if (link == null) {
-                    log.info("No Torrent link for {}, {}", name, size);
-                }
-                torrents.put(size, new HorribleParser.Torrent(anime + " - " + number, size, link));
-            }
-            if (torrents.isEmpty()) {
-                log.warn("No Torrent links for {}", id);
+            String size = nameNumberMatcher.group(3);
+            String torrentLink = getLink(torrent.select("td.hs-torrent-link a"));
+            if (torrentLink.isEmpty()) {
+                log.warn("Torrent link not found {} for {}", nameNumber, id);
                 continue;
             }
-            episodes.add(new HorribleParser.Episode(id, anime, number, torrents));
+            episodes.put(new NameNumber(anime, number),
+                    new HorribleParser.Torrent(anime + " - " + number, size, torrentLink));
         }
-        return episodes;
+
+        List<Episode> result = new ArrayList<HorribleParser.Episode>();
+        for (Map.Entry<NameNumber, Collection<HorribleParser.Torrent>> episode : episodes.asMap().entrySet()) {
+            Map<String, Torrent> torrents = episode.getValue().stream()
+                    .collect(Collectors.toMap(
+                            torrent -> torrent.getSize(),
+                            torrent -> torrent));
+            result.add(new Episode(episode.getKey().name + "-" + episode.getKey().number,
+                    episode.getKey().name,
+                    episode.getKey().number,
+                    torrents));
+        }
+        return result;
+    }
+
+    private String getLink(Elements element) {
+        Iterator<Element> elements = element.iterator();
+        if (elements.hasNext()) {
+            return elements.next().attr("href");
+        }
+        return "";
+    }
+
+    private String getText(Elements element) {
+        Iterator<Element> elements = element.iterator();
+        if (elements.hasNext()) {
+            return elements.next().ownText();
+        }
+        return "";
+    }
+
+    private String torrentId(String classAttr) {
+        List<String> ids = Arrays.asList(classAttr.split(" ")).stream()
+            .filter(item -> !"release-links".equals(item))
+            .collect(Collectors.toList());
+        if (ids.size() > 0) {
+            return ids.get(0);
+        }
+        return "";
+    }
+
+    private static class NameNumber {
+        public final String name;
+        public final String number;
+
+        public NameNumber(String name, String number) {
+            this.name = name;
+            this.number = number;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            result = prime * result
+                    + ((number == null) ? 0 : number.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            NameNumber other = (NameNumber) obj;
+            if (name == null) {
+                if (other.name != null)
+                    return false;
+            } else if (!name.equals(other.name))
+                return false;
+            if (number == null) {
+                if (other.number != null)
+                    return false;
+            } else if (!number.equals(other.number))
+                return false;
+            return true;
+        }
     }
 
     public static class Episode {

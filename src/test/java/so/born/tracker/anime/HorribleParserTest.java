@@ -3,6 +3,7 @@ package so.born.tracker.anime;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.everyItem;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.List;
@@ -25,6 +26,7 @@ public class HorribleParserTest {
         InputStream stream = getClass().getClassLoader().getResourceAsStream("horrible.html");
         Document doc = Jsoup.parse(stream, "UTF-8", HorribleFetcher.URL);
         List<Episode> episodes = new HorribleParser().parse(doc);
+        assertTrue("" + episodes.size(), episodes.size() > 0);
         assertThat(episodes, everyItem(allOf(hasInfo(), hasTorrents())));
     }
 
