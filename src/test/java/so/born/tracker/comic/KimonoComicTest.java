@@ -25,6 +25,6 @@ public class KimonoComicTest {
 
         assertEquals("title", feed.getTitle());
         assertEquals("Sunday October 18,", feed.getEntries().get(0).getTitle());
-        assertEquals("http://dilbert.com/strip/2015-10-18", feed.getEntries().get(0).getLink());
+        assertEquals("http://assets.amuniversal.com/e69b66802de901330136005056a9545d", feed.getEntries().get(0).getLink());
     }
 }
