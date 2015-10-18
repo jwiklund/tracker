@@ -17,7 +17,7 @@ public class KimonoComicTest {
     public void simpleVerification() throws Exception {
         Client client = mock(Client.class);
         WebResource resource = mock(WebResource.class);
-        when(client.resource(any())).thenReturn(resource);
+        when(client.resource(any(String.class))).thenReturn(resource);
         when(resource.get(InputStream.class)).thenReturn(Resources.getResource("kimono.json").openStream());
         KimonoComic kimono = new KimonoComic(client, "", "", "title", "uuid");
 
