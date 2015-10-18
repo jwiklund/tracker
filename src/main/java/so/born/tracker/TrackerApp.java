@@ -14,6 +14,7 @@ import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
 import so.born.tracker.anime.HorribleFetcher;
 import so.born.tracker.anime.NewReleases;
+import so.born.tracker.comic.Dilbert;
 import so.born.tracker.comic.Loading;
 import so.born.tracker.comic.Questionable;
 import so.born.tracker.comic.Sinfest;
@@ -49,6 +50,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new Questionable(client));
         environment.jersey().register(new XKCD(client));
         environment.jersey().register(new Sinfest(client));
+        environment.jersey().register(new Dilbert(client, config.getKimonoKey()));
         environment.jersey().register(new Loading(client));
         environment.jersey().register(new NewReleases(anidb, fetcher));
         environment.jersey().register(new FollowReleases(anidb, fetcher,

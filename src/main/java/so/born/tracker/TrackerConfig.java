@@ -39,4 +39,12 @@ public class TrackerConfig extends Configuration {
     public String getAnimeDBDump() {
         return animeDBDump;
     }
+
+    @NotNull
+    @JsonProperty
+    private String kimonoKey = "";
+
+    public String getKimonoKey() {
+        return kimonoKey;
+    }
 }
