@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -11,19 +13,17 @@ import org.jsoup.select.Elements;
 import so.born.tracker.Html;
 
 import com.rometools.rome.feed.synd.SyndFeed;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 @Path("/loading")
 public class Loading {
 
     private static final String URL = "http://www.loadingartist.com/";
-    private final WebResource resource;
+    private final WebTarget resource;
     private final Client client;
 
     public Loading(Client client) {
         this.client = client;
-        this.resource = client.resource(URL);
+        this.resource = client.target(URL);
     }
 
     @GET
@@ -34,7 +34,7 @@ public class Loading {
         Elements links = document.select("#main a");
         if (links.size() > 0) {
             String current = links.get(0).attr("href");
-            Document currentDocument = Html.fetch(client.resource(current), current);
+            Document currentDocument = Html.fetch(client.target(current), current);
             Elements currentImage = currentDocument.select(".comic");
             String title = currentDocument.title() != null ? currentDocument.title() : "Loading artist";
             for (int i = 0; i < currentImage.size(); i++) {

@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.client.Client;
 
 import com.rometools.rome.feed.synd.SyndFeed;
-import com.sun.jersey.api.client.Client;
 
 @Path("/dilbert")
 public class Dilbert {

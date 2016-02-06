@@ -7,6 +7,8 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.jsoup.nodes.Document;
@@ -18,23 +20,19 @@ import so.born.tracker.Html;
 
 import com.google.common.base.Joiner;
 import com.rometools.rome.feed.synd.SyndFeed;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 @Path("/sinfest")
 @Produces(MediaType.APPLICATION_XML)
 public class Sinfest {
     private static final String URL = "http://sinfest.net/";
-    private WebResource resource;
+    private WebTarget resource;
 
     public Sinfest(Client client) {
-        resource = client.resource(URL);
+        resource = client.target(URL);
     }
 
     @GET
-    public SyndFeed feed() throws UniformInterfaceException, ClientHandlerException, IOException {
+    public SyndFeed feed() throws IOException {
         ComicFeed feed = new ComicFeed("a552af95-ac7c-4489-b8ac-f1141343f0e9", "Sinfest");
 
         Document document = Html.fetch(resource, URL);

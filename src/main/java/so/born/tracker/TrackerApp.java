@@ -11,6 +11,7 @@ import io.dropwizard.views.ViewBundle;
 import java.util.concurrent.ExecutorService;
 
 import javax.script.ScriptEngineManager;
+import javax.ws.rs.client.Client;
 
 import so.born.tracker.anime.AniDB;
 import so.born.tracker.anime.FollowReleases;
@@ -28,13 +29,11 @@ import so.born.tracker.jersey.ErrorMessageWriter;
 import so.born.tracker.jersey.Ping;
 import so.born.tracker.jersey.SyndFeedWriter;
 
-import com.sun.jersey.api.client.Client;
-
 public class TrackerApp extends Application<TrackerConfig> {
 
     @Override
     public void initialize(Bootstrap<TrackerConfig> bootstrap) {
-        bootstrap.addBundle(new ViewBundle());
+        bootstrap.addBundle(new ViewBundle<TrackerConfig>());
     }
 
     @Override

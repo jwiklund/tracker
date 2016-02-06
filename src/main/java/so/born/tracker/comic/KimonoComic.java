@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rometools.rome.feed.synd.SyndFeed;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 public class KimonoComic {
 
@@ -16,11 +17,11 @@ public class KimonoComic {
 
     private final String title;
     private final String uuid;
-    private final WebResource resource;
+    private final WebTarget resource;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public KimonoComic(Client client, String apiKey, String api, String title, String uuid) {
-        this.resource = client.resource(String.format(URI, api, apiKey));
+        this.resource = client.target(String.format(URI, api, apiKey));
         this.title = title;
         this.uuid = uuid;
     }
@@ -36,7 +37,7 @@ public class KimonoComic {
     }
 
     private KimonoComicJson fetch() throws IOException {
-        try (InputStream data = resource.get(InputStream.class)) {
+        try (InputStream data = resource.request().get(InputStream.class)) {
             return mapper.readValue(data, KimonoComicJson.class);
         }
     }
