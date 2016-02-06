@@ -1,3 +1,8 @@
+httpClient:
+  timeout: 2s
+  connectionTimeout: 2s
+  cookiesEnabled: true
+
 server:
   applicationConnectors:
   - type: http

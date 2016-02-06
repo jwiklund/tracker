@@ -14,4 +14,10 @@ public class Html {
             return Jsoup.parse(data, "utf8", url);
         }
     }
+
+    public static Document fetch(WebResource.Builder requestBuilder, String url) throws IOException {
+        try (InputStream data = requestBuilder.get(InputStream.class)) {
+            return Jsoup.parse(data, "utf8", url);
+        }
+    }
 }
