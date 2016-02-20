@@ -42,6 +42,9 @@ public class HorribleParser {
             String size = nameNumberMatcher.group(3);
             String torrentLink = getLink(torrent.select("td.hs-torrent-link a"));
             if (torrentLink.isEmpty()) {
+                torrentLink = getLink(torrent.select("td.hs-magnet-link a"));
+            }
+            if (torrentLink.isEmpty()) {
                 log.warn("Torrent link not found {} for {}", nameNumber, id);
                 continue;
             }
@@ -243,7 +246,7 @@ public class HorribleParser {
         private String name;
         private String size;
         private String link;
-        
+
         public Torrent(String name, String size, String link) {
             this.name = name;
             this.size = size;
