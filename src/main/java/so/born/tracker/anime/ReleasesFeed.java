@@ -1,5 +1,12 @@
 package so.born.tracker.anime;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
+import com.rometools.rome.feed.synd.SyndContentImpl;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndFeedImpl;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -8,17 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
 import so.born.tracker.anime.HorribleParser.Episode;
 import so.born.tracker.anime.HorribleParser.Torrent;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Throwables;
-import com.rometools.rome.feed.synd.SyndContentImpl;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndEntryImpl;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.feed.synd.SyndFeedImpl;
 
 public class ReleasesFeed {
 
@@ -50,7 +48,7 @@ public class ReleasesFeed {
         Torrent torrent = ep.getLink();
         String contentValue = String.format("<a href=\"%s\">%s (%s)</a>",
                 torrent.getLink(), torrent.getName(), torrent.getSize());
-        Map<String, String> links = new TreeMap<String, String>(new LinkSorter());
+        Map<String, String> links = new TreeMap<>(new LinkSorter());
         for (Map.Entry<String, Torrent> link : ep.getAltLinks().entrySet()) {
             links.put(link.getValue().getSize(), link.getValue().getLink());
         }
@@ -59,8 +57,11 @@ public class ReleasesFeed {
             links.put("AniDB", "http://anidb.net/perl-bin/animedb.pl?show=anime&aid=" + maybeAnidb.get());
         } else {
             try {
-                String encoded = URLEncoder.encode(ep.getName(), "UTF-8");
-                links.put("AniDB", "http://anidb.net/perl-bin/animedb.pl?show=search&do.search=search&adb.search=" + encoded);
+                String url = ep.getName()
+                    .replaceAll(" ?- ?", "")
+                    .replaceAll(" ", " AND ");
+                String encoded = URLEncoder.encode(url, "UTF-8");
+                links.put("AniDB", "http://anidb.net/perl-bin/animedb.pl?show=search&do=fulltext&entity.animetb=1&entity.chartb=1&entity.clubtb=1&entity.collectiontb=1&entity.creatortb=1&entity.eptb=1&entity.grouptb=1&entity.songtb=1&entity.tagdatatb=1&field.titles=1&h=0&do.fsearch=Search&adb.search=" + encoded);
             } catch (UnsupportedEncodingException e) {
                 throw Throwables.propagate(e);
             }
