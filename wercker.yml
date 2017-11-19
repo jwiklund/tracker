@@ -1,7 +1,5 @@
 build:
-  box: maven:3.5.2-jdk-8
+  box: maven:latest
   steps:
-    - java/maven:
-      goals: clean install
-      settings: my-settings.xml
-      profiles: prod
+    - xenoterracide/maven:
+      goals: test
