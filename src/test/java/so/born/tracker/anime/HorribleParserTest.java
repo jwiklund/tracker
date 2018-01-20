@@ -5,20 +5,17 @@ import static org.hamcrest.CoreMatchers.everyItem;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.base.Strings;
 import java.io.InputStream;
 import java.util.List;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
-
 import so.born.tracker.anime.HorribleParser.Episode;
 import so.born.tracker.anime.HorribleParser.Torrent;
-
-import com.google.common.base.Strings;
 
 public class HorribleParserTest {
     @Test

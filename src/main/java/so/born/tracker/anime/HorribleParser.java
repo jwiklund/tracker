@@ -1,5 +1,7 @@
 package so.born.tracker.anime;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,15 +12,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 
 public class HorribleParser {
     private static Logger log = LoggerFactory.getLogger(HorribleFetcher.class);
@@ -52,7 +50,7 @@ public class HorribleParser {
                     new HorribleParser.Torrent(anime + " - " + number, size, torrentLink));
         }
 
-        List<Episode> result = new ArrayList<HorribleParser.Episode>();
+        List<Episode> result = new ArrayList<>();
         for (Map.Entry<NameNumber, Collection<HorribleParser.Torrent>> episode : episodes.asMap().entrySet()) {
             Map<String, Torrent> torrents = episode.getValue().stream()
                     .collect(Collectors.toMap(

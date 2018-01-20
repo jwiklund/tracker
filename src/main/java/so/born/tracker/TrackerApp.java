@@ -7,12 +7,10 @@ import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
-
 import java.util.concurrent.ExecutorService;
-
 import javax.script.ScriptEngineManager;
 import javax.ws.rs.client.Client;
-
+import so.born.tracker.anime.AllReleases;
 import so.born.tracker.anime.AniDB;
 import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
@@ -62,6 +60,7 @@ public class TrackerApp extends Application<TrackerConfig> {
         environment.jersey().register(new Sinfest(client));
         environment.jersey().register(new Dilbert(client, config.getKimonoKey()));
         environment.jersey().register(new Loading(client));
+        environment.jersey().register(new AllReleases(anidb, fetcher));
         environment.jersey().register(new NewReleases(anidb, fetcher));
         environment.jersey().register(new FollowReleases(anidb, fetcher,
                 new FollowingAnimes(config.getFollowedAnimes())));
