@@ -8,16 +8,13 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
 import java.util.concurrent.ExecutorService;
-import javax.script.ScriptEngineManager;
 import javax.ws.rs.client.Client;
 import so.born.tracker.anime.AllReleases;
 import so.born.tracker.anime.AniDB;
 import so.born.tracker.anime.FollowReleases;
 import so.born.tracker.anime.FollowingAnimes;
-import so.born.tracker.anime.HorribleFetcher;
+import so.born.tracker.anime.HorribleRssFetcher;
 import so.born.tracker.anime.NewReleases;
-import so.born.tracker.cloudflare.CloudflareFetcher;
-import so.born.tracker.cloudflare.DDosProtectionParser;
 import so.born.tracker.comic.Dilbert;
 import so.born.tracker.comic.Loading;
 import so.born.tracker.comic.Questionable;
@@ -46,10 +43,10 @@ public class TrackerApp extends Application<TrackerConfig> {
         final ExecutorService executor = new ExecutorServiceBuilder(environment.lifecycle(), "executors")
             .build();
 
-        ScriptEngineManager scriptManager = new ScriptEngineManager();
-        CloudflareFetcher cloudFetcher = new CloudflareFetcher(client, new DDosProtectionParser(scriptManager));
+        // ScriptEngineManager scriptManager = new ScriptEngineManager();
+        // CloudflareFetcher cloudFetcher = new CloudflareFetcher(client, new DDosProtectionParser(scriptManager));
         AniDB anidb = AniDB.load(config.getAnimeDBDump(), executor);
-        HorribleFetcher fetcher = new HorribleFetcher(cloudFetcher);
+        HorribleRssFetcher fetcher = new HorribleRssFetcher();
 
         environment.jersey().register(new ErrorMessageWriter());
         environment.jersey().register(new SyndFeedWriter());

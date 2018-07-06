@@ -2,7 +2,7 @@ package so.born.tracker.anime;
 
 import java.util.Set;
 
-import so.born.tracker.anime.HorribleParser.Episode;
+import so.born.tracker.anime.HorribleLegacyParser.Episode;
 
 public class FollowingAnimes {
 

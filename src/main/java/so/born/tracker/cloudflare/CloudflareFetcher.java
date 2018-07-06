@@ -2,11 +2,9 @@ package so.born.tracker.cloudflare;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -23,7 +21,9 @@ public class CloudflareFetcher {
         Response response = initialRequest(url);
         try {
             if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
-                return Jsoup.parse((InputStream) response.getEntity(), "utf8", url);
+                Document parsed = Jsoup.parse((InputStream) response.getEntity(), "utf8", url);
+                System.out.println(parsed);
+                return parsed;
             } else if (response.getStatus() == 503) {
                 return handleDos(url, response);
             } else {

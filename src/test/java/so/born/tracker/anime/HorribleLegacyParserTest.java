@@ -14,15 +14,15 @@ import org.hamcrest.TypeSafeMatcher;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
-import so.born.tracker.anime.HorribleParser.Episode;
-import so.born.tracker.anime.HorribleParser.Torrent;
+import so.born.tracker.anime.HorribleLegacyParser.Episode;
+import so.born.tracker.anime.HorribleLegacyParser.Torrent;
 
-public class HorribleParserTest {
+public class HorribleLegacyParserTest {
     @Test
     public void testParseExample() throws Exception {
         InputStream stream = getClass().getClassLoader().getResourceAsStream("horrible.html");
-        Document doc = Jsoup.parse(stream, "UTF-8", HorribleFetcher.URL);
-        List<Episode> episodes = new HorribleParser().parse(doc);
+        Document doc = Jsoup.parse(stream, "UTF-8", HorribleLegacyFetcher.URL);
+        List<Episode> episodes = new HorribleLegacyParser().parse(doc);
         assertTrue("" + episodes.size(), episodes.size() > 0);
         assertThat(episodes, everyItem(allOf(hasInfo(), hasTorrents())));
     }

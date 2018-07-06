@@ -1,5 +1,6 @@
 package so.born.tracker.cloudflare;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -9,19 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import so.born.tracker.anime.HorribleFetcher;
-
-import com.google.common.annotations.VisibleForTesting;
+import so.born.tracker.HorribleFetcher;
 
 public class DDosProtectionParser {
     private ScriptEngine engine;

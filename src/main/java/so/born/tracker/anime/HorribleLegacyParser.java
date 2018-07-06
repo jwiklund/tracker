@@ -17,12 +17,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import so.born.tracker.HorribleFetcher;
 
-public class HorribleParser {
-    private static Logger log = LoggerFactory.getLogger(HorribleFetcher.class);
+/**
+ * Legacy parser, stopped working when the main page stopped containing links and linked to the shows instead.
+ */
+public class HorribleLegacyParser {
+    private static Logger LOG = LoggerFactory.getLogger(HorribleFetcher.class);
     private static final Pattern NAME_PATTERN = Pattern.compile("(.+) - ([\\d\\.]+) \\[([^]]+)\\]");
 
-    public HorribleParser() {
+    public HorribleLegacyParser() {
     }
 
     public List<Episode> parse(Document latest) {
@@ -32,7 +36,7 @@ public class HorribleParser {
             String nameNumber = getText(torrent.select("td.dl-label i"));
             Matcher nameNumberMatcher = NAME_PATTERN.matcher(nameNumber);
             if (!nameNumberMatcher.matches()) {
-                log.warn("Name/number did not match pattern {} for {}", nameNumber, id);
+                LOG.warn("Name/number did not match pattern {} for {}", nameNumber, id);
                 continue;
             }
             String anime = nameNumberMatcher.group(1);
@@ -43,15 +47,15 @@ public class HorribleParser {
                 torrentLink = getLink(torrent.select("td.hs-magnet-link a"));
             }
             if (torrentLink.isEmpty()) {
-                log.warn("Torrent link not found {} for {}", nameNumber, id);
+                LOG.warn("Torrent link not found {} for {}", nameNumber, id);
                 continue;
             }
             episodes.put(new NameNumber(anime, number),
-                    new HorribleParser.Torrent(anime + " - " + number, size, torrentLink));
+                    new HorribleLegacyParser.Torrent(anime + " - " + number, size, torrentLink));
         }
 
         List<Episode> result = new ArrayList<>();
-        for (Map.Entry<NameNumber, Collection<HorribleParser.Torrent>> episode : episodes.asMap().entrySet()) {
+        for (Map.Entry<NameNumber, Collection<HorribleLegacyParser.Torrent>> episode : episodes.asMap().entrySet()) {
             Map<String, Torrent> torrents = episode.getValue().stream()
                     .collect(Collectors.toMap(
                             torrent -> torrent.getSize(),
@@ -136,8 +140,8 @@ public class HorribleParser {
         private String id;
         private String name;
         private String number;
-        private Map<String, HorribleParser.Torrent> torrents;
-        public Episode(String id, String name, String number, Map<String, HorribleParser.Torrent> torrents) {
+        private Map<String, HorribleLegacyParser.Torrent> torrents;
+        public Episode(String id, String name, String number, Map<String, HorribleLegacyParser.Torrent> torrents) {
             this.id = id;
             this.name = name;
             this.number = number;
@@ -161,15 +165,15 @@ public class HorribleParser {
         public void setName(String name) {
             this.name = name;
         }
-        public Map<String, HorribleParser.Torrent> getTorrents() {
+        public Map<String, HorribleLegacyParser.Torrent> getTorrents() {
             return torrents;
         }
-        public void setTorrents(Map<String, HorribleParser.Torrent> torrents) {
+        public void setTorrents(Map<String, HorribleLegacyParser.Torrent> torrents) {
             this.torrents = torrents;
         }
         public Torrent getLink() {
             Torrent fallback = new Torrent("", "", "");
-            for (Map.Entry<String, HorribleParser.Torrent> torrent : torrents.entrySet()) {
+            for (Map.Entry<String, HorribleLegacyParser.Torrent> torrent : torrents.entrySet()) {
                 if ("720p".equals(torrent.getKey())) {
                     return torrent.getValue();
                 } else if ("480p".equals(torrent.getKey())) {
@@ -181,7 +185,7 @@ public class HorribleParser {
         public Map<String, Torrent> getAltLinks() {
             Map<String, Torrent> alts = new LinkedHashMap<>();
             Torrent main = getLink();
-            for (Map.Entry<String, HorribleParser.Torrent> torrent : torrents.entrySet()) {
+            for (Map.Entry<String, HorribleLegacyParser.Torrent> torrent : torrents.entrySet()) {
                 if (torrent.getValue() != main) {
                     alts.put(torrent.getKey(), torrent.getValue());
                 }

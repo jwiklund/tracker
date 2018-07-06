@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import so.born.tracker.anime.HorribleParser.Episode;
-import so.born.tracker.anime.HorribleParser.Torrent;
+import so.born.tracker.anime.HorribleLegacyParser.Episode;
+import so.born.tracker.anime.HorribleLegacyParser.Torrent;
 
 public class ReleasesFeed {
 

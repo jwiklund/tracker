@@ -8,7 +8,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import so.born.tracker.anime.HorribleParser.Episode;
+import so.born.tracker.HorribleFetcher;
+import so.born.tracker.anime.HorribleLegacyParser.Episode;
 
 @Path("/horrible/all")
 public class AllReleases {
