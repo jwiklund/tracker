@@ -254,6 +254,7 @@ public class HorribleLegacyParser {
             this.size = size;
             this.link = link;
         }
+
         @Override
         public String toString() {
             return "Torrent [name=" + name + ", size=" + size + ", link="
@@ -311,11 +312,6 @@ public class HorribleLegacyParser {
             } else if (!size.equals(other.size))
                 return false;
             return true;
-        }
-        public Torrent(String name, String link) {
-            super();
-            this.name = name;
-            this.link = link;
         }
     }
 }

@@ -36,9 +36,8 @@ public class HorribleRssParser {
       LOG.warn("Entry does not match pattern {}", title);
       return Optional.empty();
     }
-    Map<String, Torrent> torrents = singletonMap(matcher.group(4), new Torrent(title, entry.getUri()));
+    Map<String, Torrent> torrents = singletonMap(matcher.group(4), new Torrent(title, matcher.group(4), entry.getUri()));
     Episode ep = new Episode(entry.getUri(), matcher.group(2), matcher.group(3), torrents);
-    System.out.println(ep);
     return Optional.of(ep);
   }
 }

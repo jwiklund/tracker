@@ -25,6 +25,9 @@ public class HorribleRssParserTest {
     for (Episode episode : episodes) {
       assertThat(episode.getName(), CoreMatchers.notNullValue());
       assertThat(episode.getLink(), CoreMatchers.notNullValue());
+      assertThat(episode.getLink().getName(), CoreMatchers.notNullValue());
+      assertThat(episode.getLink().getLink(), CoreMatchers.notNullValue());
+      assertThat(episode.getLink().getSize(), CoreMatchers.not(CoreMatchers.equalTo("missing")));
       assertThat(episode.getNumber(), CoreMatchers.notNullValue());
     }
   }
